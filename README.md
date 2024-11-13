@@ -1,0 +1,3 @@
+# RCDE API SDK
+
+RCDEのAPIを利用するためのSDKです。

@@ -1,0 +1,26 @@
+{
+  "name": "rcde-sdk",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "main.ts",
+  "scripts": {
+    "build": "tsc",
+    "generate": "swagger-typescript-api -p ./docs/ext-v2-prod.yaml -o ./src/api.ts --axios",
+    "dev": "tsx src/main.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.14.4",
+    "@types/node": "^22.9.0",
+    "swagger-typescript-api": "^13.0.22",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
