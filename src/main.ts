@@ -73,12 +73,14 @@ async function main() {
 
     contracts.forEach(async (contract) => {
       const getContractRes = await client.getContract(contract.id);
-      console.log(getContractRes);
 
       const updateRes = await client.updateContract(contract.id, {
-        name: "Updated Contract",
+        name: `Updated Contract ${Math.random()}`,
       });
       console.log(updateRes);
+
+      const deleteRes = await client.deleteContract(contract.id);
+      console.log(deleteRes);
     });
 
     /*

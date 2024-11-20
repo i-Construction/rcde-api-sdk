@@ -260,6 +260,29 @@ class RCDEClient {
     );
     return res.data;
   }
+
+  public async deleteContract(
+    contractId: Parameters<
+      Api<unknown>["ext"]["deleteExtV2AuthenticatedContract"]
+    >[0]
+  ) {
+    this.isTokenAvailable();
+
+    const res = await this.api.ext.deleteExtV2AuthenticatedContract(
+      contractId,
+      {
+        contractId,
+      },
+      {
+        baseURL: this.baseUrl,
+        headers: {
+          ...this.headers,
+          Authorization: `Bearer ${this.token.accessToken}`,
+        },
+      }
+    );
+    return res.data;
+  }
 }
 
 export { RCDEClient };
