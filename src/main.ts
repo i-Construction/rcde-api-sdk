@@ -63,17 +63,25 @@ async function main() {
   // console.log(list);
 
   const { constructions } = list;
-  constructions.forEach((construction) => {
-    client.getConstruction(construction.id).then((data) => {
-      client
-        .getContractList({
-          constructionId: construction.id,
-        })
-        .then((data) => {
-          console.log("getContractList", data);
-        });
+  constructions.forEach(async (construction) => {
+    const getRes = await client.getConstruction(construction.id);
 
-      /*
+    const data = await client.getContractList({
+      constructionId: construction.id,
+    });
+    const { contracts } = data;
+
+    contracts.forEach(async (contract) => {
+      const getContractRes = await client.getContract(contract.id);
+      console.log(getContractRes);
+
+      const updateRes = await client.updateContract(contract.id, {
+        name: "Updated Contract",
+      });
+      console.log(updateRes);
+    });
+
+    /*
       client
         .createContract({
           constructionId: construction.id,
@@ -87,12 +95,11 @@ async function main() {
         });
       */
 
-      /*
+    /*
       client.deleteConstruction(construction.id).then((data) => {
         console.log('deleted', data);
       });
       */
-    });
   });
 }
 

@@ -275,7 +275,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     postExtV2AuthenticatedEquipmentToken: (
       data: {
         /** 契約項目ID */
-        contractId: number;
+        contractId: number | string;
         /**
          * 有効期限種別
          *
@@ -652,7 +652,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Get Contract
      * @request GET:/ext/v2/authenticated/contract/{contractId}
      */
-    getExtV2AuthenticatedContract: (contractId: string, params: RequestParams = {}) =>
+    getExtV2AuthenticatedContract: (contractId: string | number, params: RequestParams = {}) =>
       this.request<
         {
           /** 契約項目ID */
@@ -695,7 +695,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request PUT:/ext/v2/authenticated/contract/{contractId}
      */
     putExtV2AuthenticatedContract: (
-      contractId: string,
+      contractId: string | number,
       data: {
         /** 契約項目名 */
         name?: string;
@@ -745,7 +745,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Delete Contract
      * @request DELETE:/ext/v2/authenticated/contract/{contractId}
      */
-    deleteExtV2AuthenticatedContract: (contractId: string, data: any, params: RequestParams = {}) =>
+    deleteExtV2AuthenticatedContract: (contractId: string | number, data: any, params: RequestParams = {}) =>
       this.request<void, Errors>({
         path: `/ext/v2/authenticated/contract/${contractId}`,
         method: "DELETE",
@@ -798,10 +798,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request PUT:/ext/v2/authenticated/contractFile/uploaded/{contractFileId}
      */
     putExtV2AuthenticatedContractFileUploaded: (
-      contractFileId: string,
+      contractFileId: string | number,
       data: {
         /** 契約項目ID */
-        contractId: number;
+        contractId: string | number;
       },
       params: RequestParams = {},
     ) =>
@@ -871,10 +871,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/ext/v2/authenticated/contractFile/downloadURL/{contractFileId}
      */
     getExtV2AuthenticatedContractFileDownloadUrl: (
-      contractFileId: string,
+      contractFileId: string | number,
       query: {
         /** 契約項目ID */
-        contractId: string;
+        contractId: string | number;
       },
       params: RequestParams = {},
     ) =>
@@ -900,10 +900,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/ext/v2/authenticated/contractFile/processingStatus/{contractFileId}
      */
     getExtV2AuthenticatedContractFileProcessingStatus: (
-      contractFileId: string,
+      contractFileId: string | number,
       query: {
         /** 契約項目ID */
-        contractId: string;
+        contractId: string | number;
       },
       params: RequestParams = {},
     ) =>

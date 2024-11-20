@@ -221,6 +221,45 @@ class RCDEClient {
     );
     return res.data;
   }
+
+  public async getContract(
+    contractId: Parameters<
+      Api<unknown>["ext"]["getExtV2AuthenticatedContract"]
+    >[0]
+  ) {
+    this.isTokenAvailable();
+
+    const res = await this.api.ext.getExtV2AuthenticatedContract(contractId, {
+      baseURL: this.baseUrl,
+      headers: {
+        ...this.headers,
+        Authorization: `Bearer ${this.token.accessToken}`,
+      },
+    });
+    return res.data;
+  }
+
+  public async updateContract(
+    contractId: Parameters<
+      Api<unknown>["ext"]["putExtV2AuthenticatedContract"]
+    >[0],
+    data: Parameters<Api<unknown>["ext"]["putExtV2AuthenticatedContract"]>[1]
+  ) {
+    this.isTokenAvailable();
+
+    const res = await this.api.ext.putExtV2AuthenticatedContract(
+      contractId,
+      data,
+      {
+        baseURL: this.baseUrl,
+        headers: {
+          ...this.headers,
+          Authorization: `Bearer ${this.token.accessToken}`,
+        },
+      }
+    );
+    return res.data;
+  }
 }
 
 export { RCDEClient };
