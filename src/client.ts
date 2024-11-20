@@ -186,8 +186,31 @@ class RCDEClient {
   ) {
     this.isTokenAvailable();
 
-    const res = await this.api.ext.getExtV2AuthenticatedContractList(
-      query,
+    const res = await this.api.ext.getExtV2AuthenticatedContractList(query, {
+      baseURL: this.baseUrl,
+      headers: {
+        ...this.headers,
+        Authorization: `Bearer ${this.token.accessToken}`,
+      },
+    });
+    return res.data;
+  }
+
+  public async createContract(
+    data: Omit<
+      Parameters<Api<unknown>["ext"]["postExtV2AuthenticatedContract"]>[0],
+      "contractedAt"
+    > & {
+      contractedAt: Date;
+    }
+  ) {
+    this.isTokenAvailable();
+
+    const res = await this.api.ext.postExtV2AuthenticatedContract(
+      {
+        ...data,
+        contractedAt: data.contractedAt.toISOString(),
+      },
       {
         baseURL: this.baseUrl,
         headers: {

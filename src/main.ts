@@ -1,5 +1,5 @@
 import { Api } from "./api";
-import 'dotenv/config';
+import "dotenv/config";
 import { RCDEClient } from "./client";
 
 async function main() {
@@ -65,11 +65,27 @@ async function main() {
   const { constructions } = list;
   constructions.forEach((construction) => {
     client.getConstruction(construction.id).then((data) => {
-      client.getContractList({
-        constructionId: construction.id
-      }).then((data) => {
-        console.log('getContractList', data);
-      });
+      client
+        .getContractList({
+          constructionId: construction.id,
+        })
+        .then((data) => {
+          console.log("getContractList", data);
+        });
+
+      /*
+      client
+        .createContract({
+          constructionId: construction.id,
+          name: "Test Contract",
+          contractedAt: new Date(),
+          unitPrice: 100,
+          unitVolume: 1,
+        })
+        .then((data) => {
+          console.log("createContract", data);
+        });
+      */
 
       /*
       client.deleteConstruction(construction.id).then((data) => {
@@ -78,7 +94,6 @@ async function main() {
       */
     });
   });
-
 }
 
 new Promise(async () => {
