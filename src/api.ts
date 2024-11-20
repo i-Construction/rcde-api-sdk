@@ -434,7 +434,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Get Construction
      * @request GET:/ext/v2/authenticated/construction/{constructionId}
      */
-    getExtV2AuthenticatedConstruction: (constructionId: string, params: RequestParams = {}) =>
+    getExtV2AuthenticatedConstruction: (constructionId: string | number, params: RequestParams = {}) =>
       this.request<
         {
           /** 現場ID */
@@ -474,7 +474,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request PUT:/ext/v2/authenticated/construction/{constructionId}
      */
     putExtV2AuthenticatedConstruction: (
-      constructionId: string,
+      constructionId: string | number,
       data: {
         /** 工事名称 */
         name?: string;
@@ -521,7 +521,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Delete Construction
      * @request DELETE:/ext/v2/authenticated/construction/{constructionId}
      */
-    deleteExtV2AuthenticatedConstruction: (constructionId: string, data: any, params: RequestParams = {}) =>
+    deleteExtV2AuthenticatedConstruction: (constructionId: string | number, data: any, params: RequestParams = {}) =>
       this.request<void, Errors>({
         path: `/ext/v2/authenticated/construction/${constructionId}`,
         method: "DELETE",
@@ -539,7 +539,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     getExtV2AuthenticatedContractList: (
       query?: {
         /** 現場ID */
-        constructionId?: string;
+        constructionId?: string | number;
         /** 「createdAt」は作成日、「accessedAt」はアクセス日時の降順。「name」は契約項目名の昇順 */
         sort?: string;
         /** 現在のページ番号。perPageも設定すること */
@@ -610,7 +610,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         /** 契約数量 */
         unitVolume: number;
         /** 現場ID */
-        constructionId: number;
+        constructionId: string | number;
       },
       params: RequestParams = {},
     ) =>
