@@ -1,3 +1,4 @@
+import axios from "axios";
 import { Api } from "./api";
 
 class RCDEClient {
@@ -165,9 +166,7 @@ class RCDEClient {
 
     const res = await this.api.ext.deleteExtV2AuthenticatedConstruction(
       constructionId,
-      {
-        constructionId,
-      },
+      {},
       {
         baseURL: this.baseUrl,
         headers: {
@@ -270,9 +269,7 @@ class RCDEClient {
 
     const res = await this.api.ext.deleteExtV2AuthenticatedContract(
       contractId,
-      {
-        contractId,
-      },
+      {},
       {
         baseURL: this.baseUrl,
         headers: {
@@ -282,6 +279,80 @@ class RCDEClient {
       }
     );
     return res.data;
+  }
+
+  private async createPointCloudUploadUrl(
+    data: Parameters<
+      Api<unknown>["ext"]["postExtV2AuthenticatedContractFilePointCloud"]
+    >[0]
+  ) {
+    this.isTokenAvailable();
+
+    const res = await this.api.ext.postExtV2AuthenticatedContractFilePointCloud(
+      data,
+      {
+        baseURL: this.baseUrl,
+        headers: {
+          ...this.headers,
+          Authorization: `Bearer ${this.token.accessToken}`,
+        },
+      }
+    );
+    return res.data;
+  }
+
+  private async completePointCloudUpload(
+    contractFileId: Parameters<
+      Api<unknown>["ext"]["putExtV2AuthenticatedContractFileUploaded"]
+    >[0],
+    data: Parameters<
+      Api<unknown>["ext"]["putExtV2AuthenticatedContractFileUploaded"]
+    >[1]
+  ) {
+    this.isTokenAvailable();
+
+    const res = await this.api.ext.putExtV2AuthenticatedContractFileUploaded(
+      contractFileId,
+      data,
+      {
+        baseURL: this.baseUrl,
+        headers: {
+          ...this.headers,
+          Authorization: `Bearer ${this.token.accessToken}`,
+        },
+      }
+    );
+    return res.data;
+  }
+
+  public async uploadPointCloud(
+    data: Omit<
+      Parameters<
+        Api<unknown>["ext"]["postExtV2AuthenticatedContractFilePointCloud"]
+      >[0],
+      "size"
+    > & {
+      buffer: Buffer;
+    }
+  ) {
+    const { buffer, ...rest } = data;
+    const size = buffer.byteLength;
+    const { contractFileId, presignedURL } =
+      await this.createPointCloudUploadUrl({
+        ...rest,
+        size,
+      });
+
+    // upload buffer via axios
+    await axios.put(presignedURL, buffer, {
+      headers: {
+        "Content-Type": "application/octet-stream",
+      },
+    });
+
+    return await this.completePointCloudUpload(contractFileId, {
+      contractId: rest.contractId,
+    });
   }
 }
 

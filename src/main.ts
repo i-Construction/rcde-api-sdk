@@ -1,6 +1,18 @@
-import { Api } from "./api";
 import "dotenv/config";
 import { RCDEClient } from "./client";
+import fs from "fs";
+
+async function createConstruction(client: RCDEClient) {
+  const data = await client.createConstruction({
+    name: "Test Construction",
+    address: "amagasaki",
+    contractedAt: new Date(),
+    period: new Date(),
+    advancePaymentRate: 1,
+    contractAmount: 10000,
+  });
+  console.log(data);
+}
 
 async function main() {
   const origin = process.env.DOMAIN;
@@ -8,36 +20,8 @@ async function main() {
   const clientId = process.env.CLIENT_ID;
   const clientSecret = process.env.CLIENT_SECRET;
 
-  /*
-  const api = new Api();
-  const tokenRes = await api.ext.postExtV2AuthToken({
-    clientId,
-    clientSecret,
-  }, {
-    baseURL,
-    headers: {
-      "Origin": origin,
-      "Content-Type": "application/json",
-    },
-  });
-  console.log(tokenRes.data);
-
-  const {
-    refreshToken
-  } = tokenRes.data;
-  const refreshRes = await api.ext.postExtV2AuthenticatedRefresh({
-    clientId,
-    clientSecret,
-  }, {
-    baseURL,
-    headers: {
-      "Origin": origin,
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${refreshToken}`
-    },
-  })
-  console.log(refreshRes.data);
-  */
+  const buffer = fs.readFileSync("assets/bunny.csv");
+  // console.log(buffer.byteLength);
 
   const client = new RCDEClient({
     domain: origin,
@@ -47,24 +31,14 @@ async function main() {
   });
   await client.authenticate();
 
-  /*
-  const data = await client.createConstruction({
-    name: "Test Construction",
-    address: "amagasaki",
-    contractedAt: new Date(),
-    period: new Date(),
-    advancePaymentRate: 1,
-    contractAmount: 10000
-  });
-  console.log(data);
-  */
+  // createConstruction(client);
 
   const list = await client.getConstructionList();
-  // console.log(list);
 
   const { constructions } = list;
   constructions.forEach(async (construction) => {
     const getRes = await client.getConstruction(construction.id);
+    console.log(getRes);
 
     const data = await client.getContractList({
       constructionId: construction.id,
@@ -73,35 +47,51 @@ async function main() {
 
     contracts.forEach(async (contract) => {
       const getContractRes = await client.getContract(contract.id);
+      console.log("contract", getContractRes);
 
-      const updateRes = await client.updateContract(contract.id, {
-        name: `Updated Contract ${Math.random()}`,
+      /*
+      const uploadRes = await client.uploadPointCloud({
+        contractId: contract.id,
+        name: "buffer.csv",
+        buffer,
       });
-      console.log(updateRes);
+      console.log(uploadRes);
+      */
 
-      const deleteRes = await client.deleteContract(contract.id);
-      console.log(deleteRes);
+      // const updateRes = await client.updateContract(contract.id, { name: `Updated Contract ${Math.random()}`, });
+      // console.log(updateRes);
+
+      // const deleteRes = await client.deleteContract(contract.id);
+      // console.log(deleteRes);
+
+      /*
+      client.createPointCloudUploadUrl({
+        contractId: contract.id,
+        name: "Test Point Cloud",
+        type: "LAS",
+        pointCloudAttribute: {
+        }
+      });
+      */
     });
 
     /*
-      client
-        .createContract({
-          constructionId: construction.id,
-          name: "Test Contract",
-          contractedAt: new Date(),
-          unitPrice: 100,
-          unitVolume: 1,
-        })
-        .then((data) => {
-          console.log("createContract", data);
-        });
-      */
+    const deleteConstructionRes = await client.deleteConstruction(
+      construction.id
+    );
+    console.log(deleteConstructionRes);
+    */
 
     /*
-      client.deleteConstruction(construction.id).then((data) => {
-        console.log('deleted', data);
-      });
-      */
+    const createContractRes = await client.createContract({
+      constructionId: construction.id,
+      name: "Test Contract",
+      contractedAt: new Date(),
+      unitPrice: 100,
+      unitVolume: 1,
+    });
+    console.log(createContractRes);
+    */
   });
 }
 
