@@ -418,7 +418,7 @@ class RCDEClient {
   }
 
   /**
-   * @description 点群の処理ステータスを取得
+   * @description 点群の処理ステータスを取得 (LODの生成状況など)
    */
   public async getContractFileProcessingStatus(
     contractFileId: Parameters<
