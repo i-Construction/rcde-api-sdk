@@ -1,6 +1,9 @@
 import axios from "axios";
 import { Api } from "./api";
 
+/**
+ * @description RCDE API Client
+ */
 class RCDEClient {
   private baseUrl: string;
   private clientId: string;
@@ -16,6 +19,9 @@ class RCDEClient {
     expiresAt?: number;
   };
 
+  /**
+   *
+   */
   constructor(props: {
     domain: string;
     baseUrl: string;
@@ -70,6 +76,26 @@ class RCDEClient {
       }
     );
     this.token = refreshRes.data;
+  }
+
+  /**
+   * @description pub用のトークンを作成
+   */
+  public async createEquipmentToken(
+    data: Parameters<
+      Api<unknown>["ext"]["postExtV2AuthenticatedEquipmentToken"]
+    >[0]
+  ) {
+    this.isTokenAvailable();
+
+    const res = await this.api.ext.postExtV2AuthenticatedEquipmentToken(data, {
+      baseURL: this.baseUrl,
+      headers: {
+        ...this.headers,
+        Authorization: `Bearer ${this.token.accessToken}`,
+      },
+    });
+    return res.data;
   }
 
   public async getConstructionList() {
@@ -281,7 +307,10 @@ class RCDEClient {
     return res.data;
   }
 
-  private async createPointCloudUploadUrl(
+  /**
+   * @description 点群のアップロードURLを取得 (署名付きURLの生成)
+   */
+  private async createContractFileUploadUrl(
     data: Parameters<
       Api<unknown>["ext"]["postExtV2AuthenticatedContractFilePointCloud"]
     >[0]
@@ -301,7 +330,10 @@ class RCDEClient {
     return res.data;
   }
 
-  private async completePointCloudUpload(
+  /**
+   * @description 点群のアップロードを完了したことを通知するAPI (ファイルの分割アップロードに対応するため)
+   */
+  private async completeContractFileUpload(
     contractFileId: Parameters<
       Api<unknown>["ext"]["putExtV2AuthenticatedContractFileUploaded"]
     >[0],
@@ -325,7 +357,10 @@ class RCDEClient {
     return res.data;
   }
 
-  public async uploadPointCloud(
+  /**
+   * @description 点群のアップロード
+   */
+  public async uploadContractFile(
     data: Omit<
       Parameters<
         Api<unknown>["ext"]["postExtV2AuthenticatedContractFilePointCloud"]
@@ -338,7 +373,7 @@ class RCDEClient {
     const { buffer, ...rest } = data;
     const size = buffer.byteLength;
     const { contractFileId, presignedURL } =
-      await this.createPointCloudUploadUrl({
+      await this.createContractFileUploadUrl({
         ...rest,
         size,
       });
@@ -350,9 +385,64 @@ class RCDEClient {
       },
     });
 
-    return await this.completePointCloudUpload(contractFileId, {
+    return await this.completeContractFileUpload(contractFileId, {
       contractId: rest.contractId,
     });
+  }
+
+  /**
+   * @description 点群のダウンロードURLを取得
+   */
+  public async getContractFileDownloadUrl(
+    contractFileId: Parameters<
+      Api<unknown>["ext"]["getExtV2AuthenticatedContractFileDownloadUrl"]
+    >[0],
+    query: Parameters<
+      Api<unknown>["ext"]["getExtV2AuthenticatedContractFileDownloadUrl"]
+    >[1]
+  ) {
+    this.isTokenAvailable();
+
+    const res = await this.api.ext.getExtV2AuthenticatedContractFileDownloadUrl(
+      contractFileId,
+      query,
+      {
+        baseURL: this.baseUrl,
+        headers: {
+          ...this.headers,
+          Authorization: `Bearer ${this.token.accessToken}`,
+        },
+      }
+    );
+    return res.data;
+  }
+
+  /**
+   * @description 点群の処理ステータスを取得
+   */
+  public async getContractFileProcessingStatus(
+    contractFileId: Parameters<
+      Api<unknown>["ext"]["getExtV2AuthenticatedContractFileProcessingStatus"]
+    >[0],
+    query: Parameters<
+      Api<unknown>["ext"]["getExtV2AuthenticatedContractFileProcessingStatus"]
+    >[1]
+  ) {
+    this.isTokenAvailable();
+
+    const res =
+      await this.api.ext.getExtV2AuthenticatedContractFileProcessingStatus(
+        contractFileId,
+        query,
+        {
+          baseURL: this.baseUrl,
+          headers: {
+            ...this.headers,
+            Authorization: `Bearer ${this.token.accessToken}`,
+          },
+        }
+      );
+    return res.data;
   }
 }
 
