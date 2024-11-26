@@ -15,8 +15,8 @@ async function createConstruction(client: RCDEClient) {
 }
 
 async function main() {
-  const origin = process.env.DOMAIN;
-  const baseURL = process.env.BASE_URL;
+  const domain = process.env.DOMAIN;
+  const baseUrl = process.env.BASE_URL;
   const clientId = process.env.CLIENT_ID;
   const clientSecret = process.env.CLIENT_SECRET;
 
@@ -24,8 +24,8 @@ async function main() {
   // console.log(buffer.byteLength);
 
   const client = new RCDEClient({
-    domain: origin,
-    baseUrl: baseURL,
+    domain,
+    baseUrl,
     clientId,
     clientSecret,
   });
