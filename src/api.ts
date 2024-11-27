@@ -275,7 +275,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     postExtV2AuthenticatedEquipmentToken: (
       data: {
         /** 契約項目ID */
-        contractId: number | string;
+        contractId: number;
         /**
          * 有効期限種別
          *
@@ -610,7 +610,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         /** 契約数量 */
         unitVolume: number;
         /** 現場ID */
-        constructionId: string | number;
+        constructionId: number;
       },
       params: RequestParams = {},
     ) =>
@@ -754,6 +754,119 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description 契約項目ファイル一覧取得
+     *
+     * @name GetExtV2AuthenticatedContractFileList
+     * @summary Get Contract File List
+     * @request GET:/ext/v2/authenticated/contractFile
+     */
+    getExtV2AuthenticatedContractFileList: (
+      query: {
+        /** 契約項目ID */
+        contractFileId: string | number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** 契約項目ファイル総数 */
+          total?: number;
+          contractFiles?: {
+            /** 契約項目ファイルID */
+            id?: number;
+            /** ファイル名 */
+            name?: string;
+            /**
+             * 種別コード
+             * - 設計情報: 1
+             * -  施工管理（点群データ）: 2
+             * - ヒートマップ: 3
+             * - IFC: 4
+             * - Slope: 5
+             * - Trimmed Point Cloud: 6
+             * - Generated Heat Map: 7
+             * - Generated Slope Angle: 8
+             * - Liner Information: 9
+             * - 吹付: 10
+             * - 覆工: 11
+             * - 評価: 12
+             * - DXF: 13
+             * - OBJ: 14
+             * - STL: 15
+             * - RVT: 16
+             */
+            category?: number;
+            /**
+             * ステータス
+             * - WIP: 1
+             * - Shared: 2
+             * - 技術検査済み: 3
+             * - 給付検査済み: 4
+             */
+            status?: number;
+            /**
+             * ファイルの整合姓
+             * - 未チェック: 1
+             * - 正: 2
+             * - 否: 3
+             */
+            fileCheckStatus?: number;
+            /** 作成日 */
+            createdAt?: string;
+            /** 更新日 */
+            updatedAt?: string;
+            /** アップロード日 */
+            uploadedAt?: string;
+            file?: {
+              /** ファイルID */
+              id?: number;
+              /** ファイルサイズ */
+              size?: number;
+              /** ファイル名 */
+              name?: string;
+            };
+            contract?: {
+              /** 契約項目ID */
+              id?: number;
+              /** 契約項目名 */
+              name?: string;
+              /** 契約単価 */
+              unitPrice?: number;
+              /** 契約数量 */
+              unitVolume?: number;
+              /** 契約日 */
+              contractedAt?: string;
+              /** 作成日 */
+              createdAt?: string;
+              /**
+               * 契約項目ステータス
+               * 「２：作成済み」が返却される
+               */
+              status?: number;
+            };
+            batchProcessingResult?: {
+              /** バッチ処理結果ID */
+              id?: number;
+              /**
+               * ステータス
+               * - 開始: 1
+               * - 進行中: 2
+               * - 完了: 3
+               */
+              status?: number;
+            };
+          }[];
+        },
+        void
+      >({
+        path: `/ext/v2/authenticated/contractFile`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description 点群アップロード
      *
      * @tags default
@@ -801,7 +914,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       contractFileId: string | number,
       data: {
         /** 契約項目ID */
-        contractId: string | number;
+        contractId: number;
       },
       params: RequestParams = {},
     ) =>
