@@ -49,6 +49,11 @@ async function main() {
       const getContractRes = await client.getContract(contract.id);
       console.log("contract", getContractRes);
 
+      const list = await client.getContractFileList({
+        contractId: contract.id,
+      });
+      console.log(list);
+
       /*
       const uploadRes = await client.uploadPointCloud({
         contractId: contract.id,

@@ -371,6 +371,31 @@ class RCDEClient {
   }
 
   /**
+   * Get contract file list
+   * @param 
+   * @returns contract file list
+   */
+  public async getContractFileList(
+    query: Parameters<
+      Api<unknown>["ext"]["getExtV2AuthenticatedContractFileList"]
+    >[0]
+  ) {
+    this.isTokenAvailable();
+
+    const res = await this.api.ext.getExtV2AuthenticatedContractFileList(
+      query,
+      {
+        baseURL: this.baseUrl,
+        headers: {
+          ...this.headers,
+          Authorization: `Bearer ${this.token.accessToken}`,
+        },
+      }
+    );
+    return res.data;
+  }
+
+  /**
    * Get signed URL for uploading point cloud file
    * @param data contract file data
    * @returns signed URL for uploading point cloud file

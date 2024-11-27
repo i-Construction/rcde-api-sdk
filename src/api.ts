@@ -763,7 +763,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     getExtV2AuthenticatedContractFileList: (
       query: {
         /** 契約項目ID */
-        contractFileId: string | number;
+        contractId: string | number;
       },
       params: RequestParams = {},
     ) =>

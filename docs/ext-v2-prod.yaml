@@ -1044,7 +1044,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Origin'
         - $ref: '#/components/parameters/AccessToken'
-        - name: contractFileId
+        - name: contractId
           in: query
           description: 契約項目ID
           required: true
