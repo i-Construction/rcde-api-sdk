@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "generate": "swagger-typescript-api -p ./docs/ext-v2-prod.yaml -o ./src/api.ts --axios",
-    "dev": "tsx src/main.ts"
+    "dev": "tsx examples/main.ts"
   },
   "keywords": [],
   "author": "",
