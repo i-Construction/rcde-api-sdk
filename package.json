@@ -1,8 +1,16 @@
 {
   "name": "@rcde/api-sdk",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "type": "module",
-  "main": "main.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "generate": "swagger-typescript-api -p ./docs/ext-v2-prod.yaml -o ./src/api.ts --axios",
