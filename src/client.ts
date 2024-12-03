@@ -9,7 +9,7 @@ class RCDEClient {
   private clientId: string;
   private clientSecret: string;
   private api: Api<unknown>;
-  private headers: {
+  private headers?: {
     Origin: string;
     "Content-Type": string;
   };
@@ -23,7 +23,7 @@ class RCDEClient {
    * Initialize RCDE API Client
    */
   constructor(props: {
-    domain: string;
+    domain?: string;
     baseUrl: string;
     clientId: string;
     clientSecret: string;
@@ -33,10 +33,12 @@ class RCDEClient {
     this.clientId = clientId;
     this.clientSecret = clientSecret;
     this.api = new Api();
-    this.headers = {
-      Origin: domain,
-      "Content-Type": "application/json",
-    };
+    if (domain !== undefined) {
+      this.headers = {
+        Origin: domain,
+        "Content-Type": "application/json",
+      };
+    }
   }
 
   /**
