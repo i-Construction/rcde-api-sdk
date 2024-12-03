@@ -32,7 +32,9 @@ class RCDEClient {
     this.baseUrl = baseUrl;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
-    this.api = new Api();
+    this.api = new Api({
+      withCredentials: true
+    });
     if (domain !== undefined) {
       this.headers = {
         Origin: domain,
