@@ -59,11 +59,34 @@ async function main() {
       console.log(list);
 
       list.contractFiles?.forEach(async (contractFile) => {
-        const meta = await client.getContractFileMetadata({
+        const meta = (await client.getContractFileMetadata({
           contractId,
           contractFileId: contractFile.id,
+        })) as any as {
+          coordinates: Record<
+            string,
+            Record<
+              string,
+              {
+                min: [number, number, number];
+                max: [number, number, number];
+              }
+            >
+          >;
+        };
+        const { coordinates } = meta;
+        Object.keys(coordinates).forEach((l) => {
+          const addresses = Object.keys(coordinates[l]);
+          addresses.forEach(async (address) => {
+            const img = await client.getContractFileImagePosition({
+              contractId,
+              contractFileId: contractFile.id,
+              level: l,
+              addr: address,
+            });
+            console.log(img);
+          });
         });
-        console.log(meta);
       });
 
       /*
