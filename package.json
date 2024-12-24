@@ -13,8 +13,9 @@
   },
   "scripts": {
     "build": "tsc",
-    "generate": "swagger-typescript-api -p ./docs/ext-v2-prod.yaml -o ./src/api.ts --axios",
-    "dev": "vite --host"
+    "generate": "swagger-typescript-api -p ./docs/ext-v2-prod.yaml -o ./src -n api.ts --axios",
+    "dev": "vite --host",
+    "cli-dev": "tsx examples/main.ts"
   },
   "files": [
     "dist"
