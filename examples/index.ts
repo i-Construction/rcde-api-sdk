@@ -11,3 +11,6 @@ const client = new RCDEClient({
   clientSecret,
 });
 await client.authenticate();
+
+const list = await client.getConstructionList();
+console.log(list);

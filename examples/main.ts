@@ -19,6 +19,7 @@ async function main() {
   const baseUrl = process.env.BASE_URL;
   const clientId = process.env.CLIENT_ID;
   const clientSecret = process.env.CLIENT_SECRET;
+  // console.log(domain, baseUrl, clientId, clientSecret);
 
   const buffer = fs.readFileSync("assets/bunny.csv");
   // console.log(buffer.byteLength);
@@ -31,12 +32,12 @@ async function main() {
   });
   await client.authenticate();
 
-  // createConstruction(client);
+  createConstruction(client);
 
   const list = await client.getConstructionList();
 
   const { constructions } = list;
-  constructions.forEach(async (construction) => {
+  constructions?.forEach(async (construction) => {
     const getRes = await client.getConstruction(construction.id);
     console.log(getRes);
 
@@ -45,7 +46,7 @@ async function main() {
     });
     const { contracts } = data;
 
-    contracts.forEach(async (contract) => {
+    contracts?.forEach(async (contract) => {
       const getContractRes = await client.getContract(contract.id);
       console.log("contract", getContractRes);
 
@@ -55,7 +56,7 @@ async function main() {
       console.log(list);
 
       /*
-      const uploadRes = await client.uploadPointCloud({
+      const uploadRes = await client.uploadContractFile({
         contractId: contract.id,
         name: "buffer.csv",
         buffer,
