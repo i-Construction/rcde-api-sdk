@@ -56,7 +56,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -121,7 +121,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -208,7 +208,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -293,7 +293,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -400,7 +400,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -473,7 +473,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -557,7 +557,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -592,7 +592,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -699,7 +699,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -828,7 +828,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -902,7 +902,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -988,7 +988,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1023,7 +1023,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1273,7 +1273,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           description: Bad Request
         '401':
@@ -1358,7 +1358,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1473,7 +1473,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1525,7 +1525,7 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1580,7 +1580,181 @@ paths:
             Access-Control-Allow-Origin:
               schema:
                 type: string
-              description: 企業管理画面にて設定したドメイン
+              description: 企業管理画面にて設定したオリジン
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      servers:
+        - url: 'https://api.rcde.jp'
+  /ext/v2/authenticated/pclod/meta:
+    get:
+      summary: Get Pclod Meta
+      description: |-
+        meta取得
+        ※JSONを[]byteとして返す
+      operationId: get-ext-v2-authenticated-pclod-meta
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/AccessToken'
+        - name: contractId
+          in: query
+          description: 契約項目ID
+          required: true
+          schema:
+            type: string
+        - name: contractFileId
+          in: query
+          description: 契約項目ファイルID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                contentMediaType: application/octet-stream
+              examples:
+                Example 1:
+                  value: string
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              description: 企業管理画面にて設定したオリジン
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      servers:
+        - url: 'https://api.rcde.jp'
+  /ext/v2/authenticated/pclod/imagePosition:
+    get:
+      summary: Get Pclod Image Position
+      description: |-
+        imagePosition取得
+        ※JSONを[]byteとして返す
+      operationId: get-ext-v2-authenticated-pclod-image-position
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/AccessToken'
+        - name: contractId
+          in: query
+          description: 契約項目ID
+          required: true
+          schema:
+            type: string
+        - name: contractFileId
+          in: query
+          description: 契約項目ファイルID
+          required: true
+          schema:
+            type: string
+        - name: level
+          in: query
+          description: the level of detail
+          required: true
+          schema:
+            type: string
+        - name: addr
+          in: query
+          description: the coordinate of the unit in whole LOD octree
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                contentMediaType: application/octet-stream
+              examples:
+                Example 1:
+                  value: string
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              description: 企業管理画面にて設定したオリジン
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      servers:
+        - url: 'https://api.rcde.jp'
+  /ext/v2/authenticated/pclod/imageColor:
+    get:
+      summary: Get Pclod Image Color
+      description: |-
+        imageColor取得
+        ※JSONを[]byteとして返す
+      operationId: get-ext-v2-authenticated-pclod-image-color
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/AccessToken'
+        - name: contractId
+          in: query
+          description: 契約項目ID
+          required: true
+          schema:
+            type: string
+        - name: contractFileId
+          in: query
+          description: 契約項目ファイルID
+          required: true
+          schema:
+            type: string
+        - name: level
+          in: query
+          description: the level of detail
+          required: true
+          schema:
+            type: string
+        - name: addr
+          in: query
+          description: the coordinate of the unit in whole LOD octree
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                contentMediaType: application/octet-stream
+              examples:
+                Example 1:
+                  value: string
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              description: 企業管理画面にて設定したオリジン
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1598,7 +1772,7 @@ components:
     Origin:
       name: Origin
       in: header
-      description: 企業管理画面にて設定したドメイン
+      description: 企業管理画面にて設定したオリジン
       required: true
       schema:
         type: string
@@ -1623,30 +1797,55 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: string
+          description: 企業管理画面にて設定したオリジン
     Unauthorized:
       description: Unauthorized
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: string
+          description: 企業管理画面にて設定したオリジン
     Forbidden:
       description: Forbidden
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: string
+          description: 企業管理画面にて設定したオリジン
     NotFound:
       description: Not Found
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: string
+          description: 企業管理画面にて設定したオリジン
     InternalServerError:
       description: Internal Server Error
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/errors'
+      headers:
+        Access-Control-Allow-Origin:
+          schema:
+            type: string
+          description: 企業管理画面にて設定したオリジン
   schemas:
     pointCloudAttribute:
       type: object
@@ -1677,8 +1876,17 @@ components:
             ---------|----------
              ERR0100001 | 認可情報取得エラー
              ERR0100002 | 認可エラー
+             ERR0201001 | 入力パラメータエラー
+             ERR0201002 | 企業アプリケーション情報不正
+             ERR0301001 | 企業アプリケーション情報取得エラー
+             ERR0301002 | トークン作成者不正
+             ERR0301003 | アクセストークン生成エラー
+             ERR0301004 | リフレッシュトークン生成エラー
+             ERR0202001 | 入力パラメータエラー
+             ERR0202002 | 企業アプリケーション情報不正
+             ERR0302001 | 無効なServiceHUBトークンエラー
              ERR0103001 | 企業アプリケーション情報不正
-             ERR0103002 | ドメイン不正
+             ERR0103002 | オリジン不正
              ERR0103003 | tokenの種類不正
              ERR0103004 | 発行者不正
              ERR0103005 | 企業アプリケーションID不正
@@ -1687,21 +1895,25 @@ components:
              ERR0103008 | CORSポリシー適用エラー
              ERR0103009 | token有効期限切れ
              ERR0103010 | token検証エラー（有効期限切れ以外）
-             ERR0201001 | 入力パラメータエラー
-             ERR0201002 | 企業アプリケーション情報不正
-             ERR0202001 | 入力パラメータエラー
-             ERR0202002 | 企業アプリケーション情報不正
              ERR0203001 | 入力パラメータエラー
              ERR0203002 | 企業アプリケーション情報不正
+             ERR0303001 | 無効なServiceHUBトークンエラー
+             ERR0303002 | 無効なSkydioトークンエラー
+             ERR0303003 | 該当するフライトデータが無い
+             ERR0303004 | 該当する画像データが無い
              ERR0204001 | 入力パラメータエラー
              ERR0204002 | 企業アプリケーション情報不正
+             ERR0304001 | 無効なServiceHUBトークンエラー
              ERR0205001 | 入力パラメータエラー
              ERR0205002 | 企業アプリケーション情報不正
-             ERR0301001 | 企業アプリケーション情報取得エラー
-             ERR0301002 | トークン作成者不正
-             ERR0301003 | アクセストークン生成エラー
-             ERR0301004 | リフレッシュトークン生成エラー
              ERR0206001 | 入力パラメータエラー
              ERR0206002 | 企業アプリケーション情報不正
+             ERR0305001 | 発注者と受注者が同一エラー
+             ERR0305002 | 現場の発注者が契約項目の受注者として指定された時のエラー
+             ERR0103011 | 入力パラメータ不正
+             ERR0207001 | 入力パラメータエラー
+             ERR0207002 | 企業アプリケーション情報不正
+             ERR0207003 | カテゴリー不正
+             ERR0207004 | S3操作不正
           items:
             type: string
