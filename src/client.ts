@@ -376,7 +376,7 @@ class RCDEClient {
 
   /**
    * Get contract file list
-   * @param 
+   * @param query
    * @returns contract file list
    */
   public async getContractFileList(
@@ -387,6 +387,31 @@ class RCDEClient {
     this.isTokenAvailable();
 
     const res = await this.api.ext.getExtV2AuthenticatedContractFileList(
+      query,
+      {
+        baseURL: this.baseUrl,
+        headers: {
+          ...this.headers,
+          Authorization: `Bearer ${this.token.accessToken}`,
+        },
+      }
+    );
+    return res.data;
+  }
+
+  /**
+   * Get metadata for contract file
+   * @param query
+   * @returns metadata for contract file
+   */
+  public async getContractFileMetadata(
+    query: Parameters<
+      Api<unknown>["ext"]["getExtV2AuthenticatedPclodMeta"]
+    >[0]
+  ) {
+    this.isTokenAvailable();
+
+    const res = await this.api.ext.getExtV2AuthenticatedPclodMeta(
       query,
       {
         baseURL: this.baseUrl,

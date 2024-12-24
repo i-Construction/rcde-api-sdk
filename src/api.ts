@@ -1061,9 +1061,9 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     getExtV2AuthenticatedPclodMeta: (
       query: {
         /** 契約項目ID */
-        contractId: string;
+        contractId: string | number;
         /** 契約項目ファイルID */
-        contractFileId: string;
+        contractFileId: string | number;
       },
       params: RequestParams = {},
     ) =>
@@ -1085,11 +1085,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     getExtV2AuthenticatedPclodImagePosition: (
       query: {
         /** 契約項目ID */
-        contractId: string;
+        contractId: string | number;
         /** 契約項目ファイルID */
-        contractFileId: string;
+        contractFileId: string | number;
         /** the level of detail */
-        level: string;
+        level: string | number;
         /** the coordinate of the unit in whole LOD octree */
         addr: string;
       },
@@ -1113,11 +1113,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     getExtV2AuthenticatedPclodImageColor: (
       query: {
         /** 契約項目ID */
-        contractId: string;
+        contractId: string | number;
         /** 契約項目ファイルID */
-        contractFileId: string;
+        contractFileId: string | number;
         /** the level of detail */
-        level: string;
+        level: string | number;
         /** the coordinate of the unit in whole LOD octree */
         addr: string;
       },

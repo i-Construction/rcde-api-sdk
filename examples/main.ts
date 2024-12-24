@@ -32,9 +32,10 @@ async function main() {
   });
   await client.authenticate();
 
-  createConstruction(client);
+  // createConstruction(client);
 
   const list = await client.getConstructionList();
+  console.log(list);
 
   const { constructions } = list;
   constructions?.forEach(async (construction) => {
@@ -47,13 +48,23 @@ async function main() {
     const { contracts } = data;
 
     contracts?.forEach(async (contract) => {
-      const getContractRes = await client.getContract(contract.id);
+      const contractId = contract.id;
+      if (contractId === undefined) return;
+      const getContractRes = await client.getContract(contractId);
       console.log("contract", getContractRes);
 
       const list = await client.getContractFileList({
-        contractId: contract.id,
+        contractId,
       });
       console.log(list);
+
+      list.contractFiles?.forEach(async (contractFile) => {
+        const meta = await client.getContractFileMetadata({
+          contractId,
+          contractFileId: contractFile.id,
+        });
+        console.log(meta);
+      });
 
       /*
       const uploadRes = await client.uploadContractFile({
