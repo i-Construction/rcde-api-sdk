@@ -30,8 +30,17 @@ export interface Errors {
    * ---------|----------
    *  ERR0100001 | 認可情報取得エラー
    *  ERR0100002 | 認可エラー
+   *  ERR0201001 | 入力パラメータエラー
+   *  ERR0201002 | 企業アプリケーション情報不正
+   *  ERR0301001 | 企業アプリケーション情報取得エラー
+   *  ERR0301002 | トークン作成者不正
+   *  ERR0301003 | アクセストークン生成エラー
+   *  ERR0301004 | リフレッシュトークン生成エラー
+   *  ERR0202001 | 入力パラメータエラー
+   *  ERR0202002 | 企業アプリケーション情報不正
+   *  ERR0302001 | 無効なServiceHUBトークンエラー
    *  ERR0103001 | 企業アプリケーション情報不正
-   *  ERR0103002 | ドメイン不正
+   *  ERR0103002 | オリジン不正
    *  ERR0103003 | tokenの種類不正
    *  ERR0103004 | 発行者不正
    *  ERR0103005 | 企業アプリケーションID不正
@@ -40,22 +49,26 @@ export interface Errors {
    *  ERR0103008 | CORSポリシー適用エラー
    *  ERR0103009 | token有効期限切れ
    *  ERR0103010 | token検証エラー（有効期限切れ以外）
-   *  ERR0201001 | 入力パラメータエラー
-   *  ERR0201002 | 企業アプリケーション情報不正
-   *  ERR0202001 | 入力パラメータエラー
-   *  ERR0202002 | 企業アプリケーション情報不正
    *  ERR0203001 | 入力パラメータエラー
    *  ERR0203002 | 企業アプリケーション情報不正
+   *  ERR0303001 | 無効なServiceHUBトークンエラー
+   *  ERR0303002 | 無効なSkydioトークンエラー
+   *  ERR0303003 | 該当するフライトデータが無い
+   *  ERR0303004 | 該当する画像データが無い
    *  ERR0204001 | 入力パラメータエラー
    *  ERR0204002 | 企業アプリケーション情報不正
+   *  ERR0304001 | 無効なServiceHUBトークンエラー
    *  ERR0205001 | 入力パラメータエラー
    *  ERR0205002 | 企業アプリケーション情報不正
-   *  ERR0301001 | 企業アプリケーション情報取得エラー
-   *  ERR0301002 | トークン作成者不正
-   *  ERR0301003 | アクセストークン生成エラー
-   *  ERR0301004 | リフレッシュトークン生成エラー
    *  ERR0206001 | 入力パラメータエラー
    *  ERR0206002 | 企業アプリケーション情報不正
+   *  ERR0305001 | 発注者と受注者が同一エラー
+   *  ERR0305002 | 現場の発注者が契約項目の受注者として指定された時のエラー
+   *  ERR0103011 | 入力パラメータ不正
+   *  ERR0207001 | 入力パラメータエラー
+   *  ERR0207002 | 企業アプリケーション情報不正
+   *  ERR0207003 | カテゴリー不正
+   *  ERR0207004 | S3操作不正
    */
   errors?: string[];
 }
@@ -1032,6 +1045,86 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         Errors
       >({
         path: `/ext/v2/authenticated/contractFile/processingStatus/${contractFileId}`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description meta取得 ※JSONを[]byteとして返す
+     *
+     * @name GetExtV2AuthenticatedPclodMeta
+     * @summary Get Pclod Meta
+     * @request GET:/ext/v2/authenticated/pclod/meta
+     */
+    getExtV2AuthenticatedPclodMeta: (
+      query: {
+        /** 契約項目ID */
+        contractId: string;
+        /** 契約項目ファイルID */
+        contractFileId: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<string, Errors>({
+        path: `/ext/v2/authenticated/pclod/meta`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description imagePosition取得 ※JSONを[]byteとして返す
+     *
+     * @name GetExtV2AuthenticatedPclodImagePosition
+     * @summary Get Pclod Image Position
+     * @request GET:/ext/v2/authenticated/pclod/imagePosition
+     */
+    getExtV2AuthenticatedPclodImagePosition: (
+      query: {
+        /** 契約項目ID */
+        contractId: string;
+        /** 契約項目ファイルID */
+        contractFileId: string;
+        /** the level of detail */
+        level: string;
+        /** the coordinate of the unit in whole LOD octree */
+        addr: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<string, Errors>({
+        path: `/ext/v2/authenticated/pclod/imagePosition`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description imageColor取得 ※JSONを[]byteとして返す
+     *
+     * @name GetExtV2AuthenticatedPclodImageColor
+     * @summary Get Pclod Image Color
+     * @request GET:/ext/v2/authenticated/pclod/imageColor
+     */
+    getExtV2AuthenticatedPclodImageColor: (
+      query: {
+        /** 契約項目ID */
+        contractId: string;
+        /** 契約項目ファイルID */
+        contractFileId: string;
+        /** the level of detail */
+        level: string;
+        /** the coordinate of the unit in whole LOD octree */
+        addr: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<string, Errors>({
+        path: `/ext/v2/authenticated/pclod/imageColor`,
         method: "GET",
         query: query,
         format: "json",
