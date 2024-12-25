@@ -19,6 +19,7 @@ async function main() {
   const baseUrl = process.env.BASE_URL;
   const clientId = process.env.CLIENT_ID;
   const clientSecret = process.env.CLIENT_SECRET;
+  // console.log(domain, baseUrl, clientId, clientSecret);
 
   const buffer = fs.readFileSync("assets/bunny.csv");
   // console.log(buffer.byteLength);
@@ -34,9 +35,10 @@ async function main() {
   // createConstruction(client);
 
   const list = await client.getConstructionList();
+  console.log(list);
 
   const { constructions } = list;
-  constructions.forEach(async (construction) => {
+  constructions?.forEach(async (construction) => {
     const getRes = await client.getConstruction(construction.id);
     console.log(getRes);
 
@@ -45,17 +47,58 @@ async function main() {
     });
     const { contracts } = data;
 
-    contracts.forEach(async (contract) => {
-      const getContractRes = await client.getContract(contract.id);
+    contracts?.forEach(async (contract) => {
+      const contractId = contract.id;
+      if (contractId === undefined) return;
+      const getContractRes = await client.getContract(contractId);
       console.log("contract", getContractRes);
 
       const list = await client.getContractFileList({
-        contractId: contract.id,
+        contractId,
       });
       console.log(list);
 
+      list.contractFiles?.forEach(async (contractFile) => {
+        const meta = (await client.getContractFileMetadata({
+          contractId,
+          contractFileId: contractFile.id,
+        })) as any as {
+          coordinates: Record<
+            string,
+            Record<
+              string,
+              {
+                min: [number, number, number];
+                max: [number, number, number];
+              }
+            >
+          >;
+        };
+        const { coordinates } = meta;
+        Object.keys(coordinates).forEach((l) => {
+          const addresses = Object.keys(coordinates[l]);
+          addresses.forEach(async (address) => {
+            const level = parseInt(l);
+            const position = await client.getContractFileImagePosition({
+              contractId,
+              contractFileId: contractFile.id,
+              level,
+              addr: address,
+            });
+            console.log('position', position.byteLength);
+            const color = await client.getContractFileImageColor({
+              contractId,
+              contractFileId: contractFile.id,
+              level,
+              addr: address,
+            });
+            console.log('color', color.byteLength);
+          });
+        });
+      });
+
       /*
-      const uploadRes = await client.uploadPointCloud({
+      const uploadRes = await client.uploadContractFile({
         contractId: contract.id,
         name: "buffer.csv",
         buffer,

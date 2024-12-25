@@ -30,8 +30,17 @@ export interface Errors {
    * ---------|----------
    *  ERR0100001 | 認可情報取得エラー
    *  ERR0100002 | 認可エラー
+   *  ERR0201001 | 入力パラメータエラー
+   *  ERR0201002 | 企業アプリケーション情報不正
+   *  ERR0301001 | 企業アプリケーション情報取得エラー
+   *  ERR0301002 | トークン作成者不正
+   *  ERR0301003 | アクセストークン生成エラー
+   *  ERR0301004 | リフレッシュトークン生成エラー
+   *  ERR0202001 | 入力パラメータエラー
+   *  ERR0202002 | 企業アプリケーション情報不正
+   *  ERR0302001 | 無効なServiceHUBトークンエラー
    *  ERR0103001 | 企業アプリケーション情報不正
-   *  ERR0103002 | ドメイン不正
+   *  ERR0103002 | オリジン不正
    *  ERR0103003 | tokenの種類不正
    *  ERR0103004 | 発行者不正
    *  ERR0103005 | 企業アプリケーションID不正
@@ -40,22 +49,26 @@ export interface Errors {
    *  ERR0103008 | CORSポリシー適用エラー
    *  ERR0103009 | token有効期限切れ
    *  ERR0103010 | token検証エラー（有効期限切れ以外）
-   *  ERR0201001 | 入力パラメータエラー
-   *  ERR0201002 | 企業アプリケーション情報不正
-   *  ERR0202001 | 入力パラメータエラー
-   *  ERR0202002 | 企業アプリケーション情報不正
    *  ERR0203001 | 入力パラメータエラー
    *  ERR0203002 | 企業アプリケーション情報不正
+   *  ERR0303001 | 無効なServiceHUBトークンエラー
+   *  ERR0303002 | 無効なSkydioトークンエラー
+   *  ERR0303003 | 該当するフライトデータが無い
+   *  ERR0303004 | 該当する画像データが無い
    *  ERR0204001 | 入力パラメータエラー
    *  ERR0204002 | 企業アプリケーション情報不正
+   *  ERR0304001 | 無効なServiceHUBトークンエラー
    *  ERR0205001 | 入力パラメータエラー
    *  ERR0205002 | 企業アプリケーション情報不正
-   *  ERR0301001 | 企業アプリケーション情報取得エラー
-   *  ERR0301002 | トークン作成者不正
-   *  ERR0301003 | アクセストークン生成エラー
-   *  ERR0301004 | リフレッシュトークン生成エラー
    *  ERR0206001 | 入力パラメータエラー
    *  ERR0206002 | 企業アプリケーション情報不正
+   *  ERR0305001 | 発注者と受注者が同一エラー
+   *  ERR0305002 | 現場の発注者が契約項目の受注者として指定された時のエラー
+   *  ERR0103011 | 入力パラメータ不正
+   *  ERR0207001 | 入力パラメータエラー
+   *  ERR0207002 | 企業アプリケーション情報不正
+   *  ERR0207003 | カテゴリー不正
+   *  ERR0207004 | S3操作不正
    */
   errors?: string[];
 }
@@ -434,7 +447,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Get Construction
      * @request GET:/ext/v2/authenticated/construction/{constructionId}
      */
-    getExtV2AuthenticatedConstruction: (constructionId: string | number, params: RequestParams = {}) =>
+    getExtV2AuthenticatedConstruction: (constructionId: number, params: RequestParams = {}) =>
       this.request<
         {
           /** 現場ID */
@@ -474,7 +487,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request PUT:/ext/v2/authenticated/construction/{constructionId}
      */
     putExtV2AuthenticatedConstruction: (
-      constructionId: string | number,
+      constructionId: number,
       data: {
         /** 工事名称 */
         name?: string;
@@ -521,7 +534,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Delete Construction
      * @request DELETE:/ext/v2/authenticated/construction/{constructionId}
      */
-    deleteExtV2AuthenticatedConstruction: (constructionId: string | number, data: any, params: RequestParams = {}) =>
+    deleteExtV2AuthenticatedConstruction: (constructionId: number, data: any, params: RequestParams = {}) =>
       this.request<void, Errors>({
         path: `/ext/v2/authenticated/construction/${constructionId}`,
         method: "DELETE",
@@ -539,7 +552,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     getExtV2AuthenticatedContractList: (
       query?: {
         /** 現場ID */
-        constructionId?: string | number;
+        constructionId?: number;
         /** 「createdAt」は作成日、「accessedAt」はアクセス日時の降順。「name」は契約項目名の昇順 */
         sort?: string;
         /** 現在のページ番号。perPageも設定すること */
@@ -652,7 +665,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Get Contract
      * @request GET:/ext/v2/authenticated/contract/{contractId}
      */
-    getExtV2AuthenticatedContract: (contractId: string | number, params: RequestParams = {}) =>
+    getExtV2AuthenticatedContract: (contractId: number, params: RequestParams = {}) =>
       this.request<
         {
           /** 契約項目ID */
@@ -695,7 +708,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request PUT:/ext/v2/authenticated/contract/{contractId}
      */
     putExtV2AuthenticatedContract: (
-      contractId: string | number,
+      contractId: number,
       data: {
         /** 契約項目名 */
         name?: string;
@@ -745,7 +758,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Delete Contract
      * @request DELETE:/ext/v2/authenticated/contract/{contractId}
      */
-    deleteExtV2AuthenticatedContract: (contractId: string | number, data: any, params: RequestParams = {}) =>
+    deleteExtV2AuthenticatedContract: (contractId: number, data: any, params: RequestParams = {}) =>
       this.request<void, Errors>({
         path: `/ext/v2/authenticated/contract/${contractId}`,
         method: "DELETE",
@@ -763,7 +776,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     getExtV2AuthenticatedContractFileList: (
       query: {
         /** 契約項目ID */
-        contractId: string | number;
+        contractId: number;
       },
       params: RequestParams = {},
     ) =>
@@ -869,7 +882,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * @description 点群アップロード
      *
-     * @tags default
      * @name PostExtV2AuthenticatedContractFilePointCloud
      * @summary Upload Point Cloud
      * @request POST:/ext/v2/authenticated/contractFile/pointCloud
@@ -911,7 +923,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request PUT:/ext/v2/authenticated/contractFile/uploaded/{contractFileId}
      */
     putExtV2AuthenticatedContractFileUploaded: (
-      contractFileId: string | number,
+      contractFileId: number,
       data: {
         /** 契約項目ID */
         contractId: number;
@@ -984,10 +996,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/ext/v2/authenticated/contractFile/downloadURL/{contractFileId}
      */
     getExtV2AuthenticatedContractFileDownloadUrl: (
-      contractFileId: string | number,
+      contractFileId: number,
       query: {
         /** 契約項目ID */
-        contractId: string | number;
+        contractId: number;
       },
       params: RequestParams = {},
     ) =>
@@ -1013,10 +1025,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/ext/v2/authenticated/contractFile/processingStatus/{contractFileId}
      */
     getExtV2AuthenticatedContractFileProcessingStatus: (
-      contractFileId: string | number,
+      contractFileId: number,
       query: {
         /** 契約項目ID */
-        contractId: string | number;
+        contractId: number;
       },
       params: RequestParams = {},
     ) =>
@@ -1035,6 +1047,83 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "GET",
         query: query,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description meta取得
+     *
+     * @name GetExtV2AuthenticatedPclodMeta
+     * @summary Get Pclod Meta
+     * @request GET:/ext/v2/authenticated/pclod/meta
+     */
+    getExtV2AuthenticatedPclodMeta: (
+      query: {
+        /** 契約項目ID */
+        contractId: number;
+        /** 契約項目ファイルID */
+        contractFileId: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<File, Errors>({
+        path: `/ext/v2/authenticated/pclod/meta`,
+        method: "GET",
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * @description imagePosition取得
+     *
+     * @name GetExtV2AuthenticatedPclodImagePosition
+     * @summary Get Pclod Image Position
+     * @request GET:/ext/v2/authenticated/pclod/imagePosition
+     */
+    getExtV2AuthenticatedPclodImagePosition: (
+      query: {
+        /** 契約項目ID */
+        contractId: number;
+        /** 契約項目ファイルID */
+        contractFileId: number;
+        /** the level of detail */
+        level: number;
+        /** the coordinate of the unit in whole LOD octree */
+        addr: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ArrayBuffer, Errors>({
+        path: `/ext/v2/authenticated/pclod/imagePosition`,
+        method: "GET",
+        query: query,
+        ...params,
+      }),
+
+    /**
+     * @description imageColor取得
+     *
+     * @name GetExtV2AuthenticatedPclodImageColor
+     * @summary Get Pclod Image Color
+     * @request GET:/ext/v2/authenticated/pclod/imageColor
+     */
+    getExtV2AuthenticatedPclodImageColor: (
+      query: {
+        /** 契約項目ID */
+        contractId: number;
+        /** 契約項目ファイルID */
+        contractFileId: number;
+        /** the level of detail */
+        level: number;
+        /** the coordinate of the unit in whole LOD octree */
+        addr: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ArrayBuffer, Errors>({
+        path: `/ext/v2/authenticated/pclod/imageColor`,
+        method: "GET",
+        query: query,
         ...params,
       }),
   };

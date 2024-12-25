@@ -33,7 +33,7 @@ class RCDEClient {
     this.clientId = clientId;
     this.clientSecret = clientSecret;
     this.api = new Api({
-      withCredentials: true
+      withCredentials: true,
     });
     if (domain !== undefined) {
       this.headers = {
@@ -177,7 +177,7 @@ class RCDEClient {
     this.isTokenAvailable();
 
     const res = await this.api.ext.getExtV2AuthenticatedConstruction(
-      constructionId.toString(),
+      constructionId,
       {
         baseURL: this.baseUrl,
         headers: {
@@ -376,7 +376,7 @@ class RCDEClient {
 
   /**
    * Get contract file list
-   * @param 
+   * @param query
    * @returns contract file list
    */
   public async getContractFileList(
@@ -396,6 +396,75 @@ class RCDEClient {
         },
       }
     );
+    return res.data;
+  }
+
+  /**
+   * Get metadata for contract file
+   * @param query
+   * @returns metadata for contract file
+   */
+  public async getContractFileMetadata(
+    query: Parameters<Api<unknown>["ext"]["getExtV2AuthenticatedPclodMeta"]>[0]
+  ) {
+    this.isTokenAvailable();
+
+    const res = await this.api.ext.getExtV2AuthenticatedPclodMeta(query, {
+      baseURL: this.baseUrl,
+      headers: {
+        ...this.headers,
+        Authorization: `Bearer ${this.token.accessToken}`,
+      },
+    });
+    return res.data;
+  }
+
+  /**
+   * Get image position for contract file
+   * @param query
+   * @returns image position for contract file
+   */
+  public async getContractFileImagePosition(
+    query: Parameters<
+      Api<unknown>["ext"]["getExtV2AuthenticatedPclodImagePosition"]
+    >[0]
+  ) {
+    this.isTokenAvailable();
+
+    const res = await this.api.ext.getExtV2AuthenticatedPclodImagePosition(
+      query,
+      {
+        baseURL: this.baseUrl,
+        headers: {
+          ...this.headers,
+          Authorization: `Bearer ${this.token.accessToken}`,
+        },
+        format: "arraybuffer",
+      }
+    );
+    return res.data;
+  }
+
+  /**
+   * Get image color for contract file
+   * @param query
+   * @returns image color for contract file
+   */
+  public async getContractFileImageColor(
+    query: Parameters<
+      Api<unknown>["ext"]["getExtV2AuthenticatedPclodImageColor"]
+    >[0]
+  ) {
+    this.isTokenAvailable();
+
+    const res = await this.api.ext.getExtV2AuthenticatedPclodImageColor(query, {
+      baseURL: this.baseUrl,
+      headers: {
+        ...this.headers,
+        Authorization: `Bearer ${this.token.accessToken}`,
+      },
+      format: "arraybuffer",
+    });
     return res.data;
   }
 
