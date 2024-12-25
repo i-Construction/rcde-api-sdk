@@ -177,7 +177,7 @@ class RCDEClient {
     this.isTokenAvailable();
 
     const res = await this.api.ext.getExtV2AuthenticatedConstruction(
-      constructionId.toString(),
+      constructionId,
       {
         baseURL: this.baseUrl,
         headers: {
@@ -439,6 +439,7 @@ class RCDEClient {
           ...this.headers,
           Authorization: `Bearer ${this.token.accessToken}`,
         },
+        format: "arraybuffer",
       }
     );
     return res.data;
@@ -462,6 +463,7 @@ class RCDEClient {
         ...this.headers,
         Authorization: `Bearer ${this.token.accessToken}`,
       },
+      format: "arraybuffer",
     });
     return res.data;
   }

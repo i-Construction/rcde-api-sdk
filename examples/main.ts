@@ -84,7 +84,7 @@ async function main() {
               level: l,
               addr: address,
             });
-            console.log(img);
+            console.log(img.byteLength);
           });
         });
       });
