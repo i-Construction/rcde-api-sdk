@@ -78,13 +78,21 @@ async function main() {
         Object.keys(coordinates).forEach((l) => {
           const addresses = Object.keys(coordinates[l]);
           addresses.forEach(async (address) => {
-            const img = await client.getContractFileImagePosition({
+            const level = parseInt(l);
+            const position = await client.getContractFileImagePosition({
               contractId,
               contractFileId: contractFile.id,
-              level: l,
+              level,
               addr: address,
             });
-            console.log(img.byteLength);
+            console.log('position', position.byteLength);
+            const color = await client.getContractFileImageColor({
+              contractId,
+              contractFileId: contractFile.id,
+              level,
+              addr: address,
+            });
+            console.log('color', color.byteLength);
           });
         });
       });
