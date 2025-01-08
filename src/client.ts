@@ -560,23 +560,25 @@ class RCDEClient {
 
   /**
    * Get download URL for contract file
+   * @param contractId contract ID
    * @param contractFileId contract file ID
-   * @param query query parameters
    * @returns download URL for contract file
    */
   public async getContractFileDownloadUrl(
+    contractId: Parameters<
+      Api<unknown>["ext"]["getExtV2AuthenticatedContractFileDownloadUrl"]
+    >[1]["contractId"],
     contractFileId: Parameters<
       Api<unknown>["ext"]["getExtV2AuthenticatedContractFileDownloadUrl"]
-    >[0],
-    query: Parameters<
-      Api<unknown>["ext"]["getExtV2AuthenticatedContractFileDownloadUrl"]
-    >[1]
+    >[0]
   ) {
     this.isTokenAvailable();
 
     const res = await this.api.ext.getExtV2AuthenticatedContractFileDownloadUrl(
       contractFileId,
-      query,
+      {
+        contractId,
+      },
       {
         baseURL: this.baseUrl,
         headers: {
@@ -590,8 +592,8 @@ class RCDEClient {
 
   /**
    * Get contract file processing status
+   * @param contractId contract ID
    * @param contractFileId contract file ID
-   * @param query query parameters
    * @returns contract file processing status
    * status:
    * - WIP: 1
@@ -600,19 +602,21 @@ class RCDEClient {
    * - 給付検査済み: 4
    */
   public async getContractFileProcessingStatus(
+    contractId: Parameters<
+      Api<unknown>["ext"]["getExtV2AuthenticatedContractFileProcessingStatus"]
+    >[1]["contractId"],
     contractFileId: Parameters<
       Api<unknown>["ext"]["getExtV2AuthenticatedContractFileProcessingStatus"]
-    >[0],
-    query: Parameters<
-      Api<unknown>["ext"]["getExtV2AuthenticatedContractFileProcessingStatus"]
-    >[1]
+    >[0]
   ) {
     this.isTokenAvailable();
 
     const res =
       await this.api.ext.getExtV2AuthenticatedContractFileProcessingStatus(
         contractFileId,
-        query,
+        {
+          contractId,
+        },
         {
           baseURL: this.baseUrl,
           headers: {

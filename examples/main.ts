@@ -59,6 +59,18 @@ async function main() {
       console.log(list);
 
       list.contractFiles?.forEach(async (contractFile) => {
+        const url = await client.getContractFileDownloadUrl(
+          contractId,
+          contractFile.id!
+        );
+        console.log("presignedURL", url);
+
+        const status = await client.getContractFileProcessingStatus(
+          contractId,
+          contractFile.id!
+        );
+        console.log("status", status);
+
         const meta = (await client.getContractFileMetadata({
           contractId,
           contractFileId: contractFile.id,
@@ -85,14 +97,14 @@ async function main() {
               level,
               addr: address,
             });
-            console.log('position', position.byteLength);
+            console.log("position", position.byteLength);
             const color = await client.getContractFileImageColor({
               contractId,
               contractFileId: contractFile.id,
               level,
               addr: address,
             });
-            console.log('color', color.byteLength);
+            console.log("color", color.byteLength);
           });
         });
       });
