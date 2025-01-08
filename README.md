@@ -7,9 +7,9 @@ RCDE APIを使用するためのSDKです。
 npm、またはyarnを使用してインストールします。
 
 ```bash
-npm install @rcde/api-sdk
+npm install @i-con/api-sdk
 # or
-yarn add @rcde/api-sdk
+yarn add @i-con/api-sdk
 ```
 
 ## 事前準備
