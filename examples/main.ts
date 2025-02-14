@@ -123,16 +123,6 @@ async function main() {
 
       // const deleteRes = await client.deleteContract(contract.id);
       // console.log(deleteRes);
-
-      /*
-      client.createPointCloudUploadUrl({
-        contractId: contract.id,
-        name: "Test Point Cloud",
-        type: "LAS",
-        pointCloudAttribute: {
-        }
-      });
-      */
     });
 
     /*
