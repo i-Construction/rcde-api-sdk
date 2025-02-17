@@ -21,7 +21,6 @@ async function main() {
   const clientSecret = process.env.CLIENT_SECRET;
   // console.log(domain, baseUrl, clientId, clientSecret);
 
-  const buffer = fs.readFileSync("assets/bunny.csv");
   // console.log(buffer.byteLength);
 
   const client = new RCDEClient({
@@ -31,6 +30,9 @@ async function main() {
     clientSecret,
   });
   await client.authenticate();
+
+  const name = "bunny.csv";
+  const buffer = fs.createReadStream(`assets/${name}`);
 
   // createConstruction(client);
 
@@ -112,7 +114,7 @@ async function main() {
       /*
       const uploadRes = await client.uploadContractFile({
         contractId: contract.id,
-        name: "buffer.csv",
+        name,
         buffer,
       });
       console.log(uploadRes);

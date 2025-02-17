@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Api } from "./api";
+import { ReadStream } from "fs";
 
 /**
  * RCDE API Client
@@ -535,11 +536,26 @@ class RCDEClient {
       >[0],
       "size"
     > & {
-      buffer: Buffer;
+      buffer: Buffer | ReadStream;
     }
   ) {
     const { buffer, ...rest } = data;
-    const size = buffer.byteLength;
+
+    let size = 0;
+    if (buffer instanceof ReadStream) {
+      size = await new Promise((resolve, reject) => {
+        buffer.on("data", (chunk) => {
+          size += chunk.length;
+        });
+        buffer.on("end", () => {
+          resolve(size);
+        });
+        buffer.on("error", reject);
+      });
+    } else {
+      size = buffer.byteLength;
+    }
+
     const { contractFileId, presignedURL } =
       await this.createContractFileUploadUrl({
         ...rest,
