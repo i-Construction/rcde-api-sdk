@@ -1,5 +1,6 @@
 {
   "name": "@i-con/api-sdk",
+  "private": false,
   "version": "0.0.3",
   "publishConfig": {
     "access": "public"
