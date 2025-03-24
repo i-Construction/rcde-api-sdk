@@ -1,7 +1,6 @@
 {
   "name": "@i-con/api-sdk",
-  "private": false,
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publishConfig": {
     "access": "public"
   },
@@ -34,7 +33,7 @@
   },
   "devDependencies": {
     "@types/axios": "^0.14.4",
-    "@types/node": "^22.9.0",
+    "@types/node": "^22.13.11",
     "swagger-typescript-api": "^13.0.22",
     "tsx": "^4.19.2",
     "typescript": "5.7.2",

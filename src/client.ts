@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Api } from "./api";
 import { ReadStream } from "fs";
+import { Buffer } from "buffer";
 
 /**
  * RCDE API Client
@@ -537,23 +538,18 @@ class RCDEClient {
       "size"
     > & {
       buffer: Buffer | ReadStream;
+      size?: number;
     }
   ) {
-    const { buffer, ...rest } = data;
+    const { buffer, size: _size, ...rest } = data;
 
-    let size = 0;
-    if (buffer instanceof ReadStream) {
-      size = await new Promise((resolve, reject) => {
-        buffer.on("data", (chunk) => {
-          size += chunk.length;
-        });
-        buffer.on("end", () => {
-          resolve(size);
-        });
-        buffer.on("error", reject);
-      });
-    } else {
+    let size = _size ?? 0;
+    if (buffer instanceof Buffer) {
       size = buffer.byteLength;
+    }
+
+    if (size === 0) {
+      throw new Error("size field is required if input buffer is ReadStream");
     }
 
     const { contractFileId, presignedURL } =
@@ -566,6 +562,7 @@ class RCDEClient {
     await axios.put(presignedURL, buffer, {
       headers: {
         "Content-Type": "application/octet-stream",
+        "Content-Length": size.toString(),
       },
     });
 
