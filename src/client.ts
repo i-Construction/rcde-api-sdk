@@ -544,7 +544,7 @@ class RCDEClient {
     const { buffer, size: _size, ...rest } = data;
 
     let size = _size ?? 0;
-    if (buffer instanceof Buffer) {
+    if (buffer instanceof Buffer || buffer instanceof ArrayBuffer) {
       size = buffer.byteLength;
     }
 
