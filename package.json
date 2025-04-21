@@ -19,7 +19,8 @@
     "generate-2-legged": "swagger-typescript-api -p ./docs/ext-v2-prod.yaml -o ./src -n api-2-legged.ts --axios",
     "generate-3-legged": "swagger-typescript-api -p ./docs/ext-3legged-v2-prod.yaml -o ./src -n api-3-legged.ts --axios",
     "dev": "vite --host",
-    "cli-dev": "tsx examples/main.ts"
+    "cli-dev-2-legged": "tsx examples/main-2-legged.ts",
+    "cli-dev-3-legged": "tsx examples/main-3-legged.ts"
   },
   "files": [
     "dist"
