@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { RCDEClient } from "../src/client";
+import { RCDEClient3Legged } from "../src/client-3-legged";
 
 async function main() {
   const domain = process.env.DOMAIN;
@@ -11,12 +11,12 @@ async function main() {
 
   // console.log(buffer.byteLength);
 
-  const client = new RCDEClient({
+  const client = new RCDEClient3Legged({
     domain,
-    baseUrl,
-    clientId,
-    clientSecret,
-    authCode,
+    baseUrl: baseUrl!,
+    clientId: clientId!,
+    clientSecret: clientSecret!,
+    authCode: authCode!,
   });
   await client.authenticate();
 

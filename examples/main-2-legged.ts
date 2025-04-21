@@ -1,8 +1,8 @@
 import "dotenv/config";
-import { RCDEClient } from "../src/client-2-legged";
+import { RCDEClient2Legged } from "../src/client-2-legged";
 import fs from "fs";
 
-async function createConstruction(client: RCDEClient) {
+async function createConstruction(client: RCDEClient2Legged) {
   const data = await client.createConstruction({
     name: "Test Construction",
     address: "amagasaki",
@@ -23,11 +23,11 @@ async function main() {
 
   // console.log(buffer.byteLength);
 
-  const client = new RCDEClient({
+  const client = new RCDEClient2Legged({
     domain,
-    baseUrl,
-    clientId,
-    clientSecret,
+    baseUrl: baseUrl!,
+    clientId: clientId!,
+    clientSecret: clientSecret!,
   });
   await client.authenticate();
 
@@ -42,7 +42,7 @@ async function main() {
 
   const { constructions } = list;
   constructions?.forEach(async (construction) => {
-    const getRes = await client.getConstruction(construction.id);
+    const getRes = await client.getConstruction(construction.id!);
     console.log(getRes);
 
     const data = await client.getContractList({
