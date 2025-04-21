@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { RCDEClient } from "../src/client";
 import fs from "fs";
+import util from "util";
 
 async function createConstruction(client: RCDEClient) {
   const data = await client.createConstruction({
@@ -19,7 +20,7 @@ async function main() {
   const baseUrl = process.env.BASE_URL;
   const clientId = process.env.CLIENT_ID;
   const clientSecret = process.env.CLIENT_SECRET;
-  // console.log(domain, baseUrl, clientId, clientSecret);
+  console.log(domain, baseUrl, clientId, clientSecret);
 
   // console.log(buffer.byteLength);
 
@@ -31,13 +32,14 @@ async function main() {
   });
   await client.authenticate();
 
-  const name = "bunny.csv";
+  // const name = "bunny.csv";
+  const name = "uav.txt";
   const buffer = fs.createReadStream(`assets/${name}`);
+  const size = fs.statSync(`assets/${name}`).size;
 
-  // createConstruction(client);
+  // await createConstruction(client);
 
   const list = await client.getConstructionList();
-  console.log(list);
 
   const { constructions } = list;
   constructions?.forEach(async (construction) => {
@@ -65,14 +67,15 @@ async function main() {
           contractId,
           contractFile.id!
         );
-        console.log("presignedURL", url);
+        // console.log("presignedURL", url);
 
         const status = await client.getContractFileProcessingStatus(
           contractId,
           contractFile.id!
         );
-        console.log("status", status);
+        console.log(contractFile.id, contractFile.name, "status", status);
 
+        /*
         const meta = (await client.getContractFileMetadata({
           contractId,
           contractFileId: contractFile.id,
@@ -88,6 +91,10 @@ async function main() {
             >
           >;
         };
+        console.log("meta", meta);
+        */
+
+        /*
         const { coordinates } = meta;
         Object.keys(coordinates).forEach((l) => {
           const addresses = Object.keys(coordinates[l]);
@@ -109,6 +116,7 @@ async function main() {
             console.log("color", color.byteLength);
           });
         });
+        */
       });
 
       /*
@@ -116,6 +124,7 @@ async function main() {
         contractId: contract.id,
         name,
         buffer,
+        size,
       });
       console.log(uploadRes);
       */
