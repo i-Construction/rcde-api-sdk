@@ -1025,159 +1025,7 @@ paths:
                   contractFiles:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                          description: 契約項目ファイルID
-                        name:
-                          type: string
-                          description: ファイル名
-                        category:
-                          type: integer
-                          description: |-
-                            種別コード
-                            - 設計情報: 1
-                            -  施工管理（点群データ）: 2
-                            - ヒートマップ: 3
-                            - IFC: 4
-                            - Slope: 5
-                            - Trimmed Point Cloud: 6
-                            - Generated Heat Map: 7
-                            - Generated Slope Angle: 8
-                            - Liner Information: 9
-                            - 吹付: 10
-                            - 覆工: 11
-                            - 評価: 12
-                            - DXF: 13
-                            - OBJ: 14
-                            - STL: 15
-                            - RVT: 16
-                        status:
-                          type: integer
-                          description: |-
-                            ステータス
-                            - WIP: 1
-                            - Shared: 2
-                            - 技術検査済み: 3
-                            - 給付検査済み: 4
-                        fileCheckStatus:
-                          type: integer
-                          description: |
-                            ファイルの整合姓
-                            - 未チェック: 1
-                            - 正: 2
-                            - 否: 3
-                        createdAt:
-                          type: string
-                          description: 作成日
-                        updatedAt:
-                          type: string
-                          description: 更新日
-                        uploadedAt:
-                          type: string
-                          description: アップロード日
-                        file:
-                          type: object
-                          properties:
-                            id:
-                              type: integer
-                              description: ファイルID
-                            size:
-                              type: integer
-                              description: ファイルサイズ
-                            name:
-                              type: string
-                              description: ファイル名
-                        contract:
-                          type: object
-                          properties:
-                            id:
-                              type: integer
-                              description: 契約項目ID
-                            name:
-                              type: string
-                              description: 契約項目名
-                            unitPrice:
-                              type: integer
-                              description: 契約単価
-                            unitVolume:
-                              type: integer
-                              description: 契約数量
-                            contractedAt:
-                              type: string
-                              description: 契約日
-                            createdAt:
-                              type: string
-                              description: 作成日
-                            status:
-                              type: integer
-                              description: |-
-                                契約項目ステータス
-                                「２：作成済み」が返却される
-                        batchProcessingResult:
-                          type: object
-                          properties:
-                            id:
-                              type: integer
-                              description: バッチ処理結果ID
-                            status:
-                              type: integer
-                              description: |
-                                ステータス
-                                - 開始: 1
-                                - 進行中: 2
-                                - 完了: 3
-                x-examples:
-                  Example 1:
-                    total: 2
-                    contractFiles:
-                      - id: 5
-                        name: bunny.csv
-                        category: 2
-                        status: 1
-                        fileCheckStatus: 1
-                        createdAt: '2024-11-19T06:56:27Z'
-                        updatedAt: '2024-11-19T06:56:31Z'
-                        uploadedAt: '2024-11-19T06:56:31Z'
-                        file:
-                          id: 9
-                          size: 1043676
-                          name: bunny.csv
-                        contract:
-                          id: 16
-                          name: けいやくこうもく
-                          unitPrice: 11111
-                          unitVolume: 1
-                          contractedAt: '2024-11-18T15:00:00Z'
-                          createdAt: '2024-11-19T06:54:59Z'
-                          status: 2
-                        batchProcessingResult:
-                          id: 3
-                          status: 3
-                      - id: 6
-                        name: 駒栄全体点群.las
-                        category: 2
-                        status: 1
-                        fileCheckStatus: 1
-                        createdAt: '2024-11-19T06:56:39Z'
-                        updatedAt: '2024-11-19T06:56:46Z'
-                        uploadedAt: '2024-11-19T06:56:46Z'
-                        file:
-                          id: 11
-                          size: 232143359
-                          name: 駒栄全体点群.las
-                        contract:
-                          id: 16
-                          name: けいやくこうもく
-                          unitPrice: 11111
-                          unitVolume: 1
-                          contractedAt: '2024-11-18T15:00:00Z'
-                          createdAt: '2024-11-19T06:54:59Z'
-                          status: 2
-                        batchProcessingResult:
-                          id: 4
-                          status: 3
+                      $ref: '#/components/schemas/contractFile'
               examples:
                 Example 1:
                   value:
@@ -1251,6 +1099,97 @@ paths:
                 type: string
       servers:
         - url: 'https://api.rcde.jp'
+  '/ext/v2/authenticated/contractFile/{contractFileId}':
+    parameters:
+      - schema:
+          type: string
+        name: contractFileId
+        in: path
+        required: true
+        description: 契約項目ファイルID
+    put:
+      summary: Put Contract File
+      operationId: put-ext-v2-authenticated-contractFile
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contractFile'
+              examples:
+                Example 1:
+                  value:
+                    id: 5
+                    name: bunny.csv
+                    category: 2
+                    status: 1
+                    fileCheckStatus: 1
+                    createdAt: '2024-11-19T06:56:27Z'
+                    updatedAt: '2024-11-19T06:56:31Z'
+                    uploadedAt: '2024-11-19T06:56:31Z'
+                    file:
+                      id: 9
+                      size: 1043676
+                      name: bunny.csv
+                    contract:
+                      id: 16
+                      name: けいやくこうもく１
+                      unitPrice: 11111
+                      unitVolume: 1
+                      contractedAt: '2024-11-18T15:00:00Z'
+                      createdAt: '2024-11-19T06:54:59Z'
+                      status: 2
+                    batchProcessingResult:
+                      id: 3
+                      status: 3
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              description: 企業管理画面にて設定したオリジン
+      description: 契約項目ファイル編集
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ファイル名
+                status:
+                  type: integer
+                  description: |-
+                    ステータス
+                    - WIP: 1
+                    - Shared: 2
+                    - Published（技術検査済み）: 3
+                    - Archived（給付検査済み）: 4
+            examples:
+              Example 1:
+                value:
+                  name: 変更ファイル名
+                  status: 1
+        description: ''
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/AccessToken'
+    delete:
+      summary: Delete Contract File
+      operationId: delete-ext-v2-authenticated-contractFile
+      responses:
+        '200':
+          description: OK
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              description: 企業管理画面にて設定したオリジン
+      description: 契約項目ファイル削除
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/AccessToken'
   /ext/v2/authenticated/contractFile/pointCloud:
     post:
       summary: Upload Point Cloud
@@ -1423,6 +1362,196 @@ paths:
                     createdAt: '2024-04-24T03:59:17Z'
                     updatedAt: '2024-04-25T02:56:09Z'
                     uploadedAt: '2024-04-25T02:56:09Z'
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              description: 企業管理画面にて設定したオリジン
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      servers:
+        - url: 'https://api.rcde.jp'
+  /ext/v2/authenticated/contractFile/pointCloud/multipartUpload:
+    post:
+      summary: Multipart Upload Point Cloud
+      description: 点群マルチパートアップロード(2種類のアップロードURLが返るのでそれぞれにアップロードする)
+      operationId: post-ext-v2-authenticated-contractFile-pointCloud-multipartUpload
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/AccessToken'
+      requestBody:
+        description: 'ファイル名に指定可能な拡張子: .txt, .csv, .las, .laz, .xyz, .e57'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contractId:
+                  type: integer
+                  description: 契約項目ID
+                name:
+                  type: string
+                  description: ファイル名
+                size:
+                  type: integer
+                  description: ファイルサイズ
+                partTotal:
+                  type: integer
+                  description: ファイルの分割数
+                pointCloudAttribute:
+                  $ref: '#/components/schemas/pointCloudAttribute'
+              required:
+                - contractId
+                - name
+                - size
+                - partTotal
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  s3UploadId:
+                    type: string
+                    description: S3アップロードID
+                  presignedUploadParts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        partNumber:
+                          type: integer
+                          description: パート番号
+                        presignedURL:
+                          type: string
+                          description: 署名付きURL(S3の署名付きURLによるアップロード方法)
+                  blockChainUploadId:
+                    type: string
+                    description: ブロックチェーンアップロードID
+                  blockChainUploadURLs:
+                    type: array
+                    description: ブロックチェーンアップロードURL一覧(PUTメソッドかつmultipart/form-dataでアップロードする)
+                    items:
+                      type: string
+                  contractFileId:
+                    type: integer
+                    description: 契約項目ファイルID
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              description: 企業管理画面にて設定したオリジン
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      servers:
+        - url: 'https://api.rcde.jp'
+  /ext/v2/authenticated/contractFile/pointCloud/completeMultipartUpload:
+    put:
+      summary: Complete Multipart Upload Point Cloud
+      description: 点群マルチパートアップロード完了
+      operationId: post-ext-v2-authenticated-contractFile-pointCloud-completeMultipartUpload
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/AccessToken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contractFileId:
+                  type: integer
+                  description: 契約項目ファイルID
+                s3UploadId:
+                  type: string
+                  description: S3アップロードID
+                s3Parts:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      partNumber:
+                        type: integer
+                        description: パート番号
+                      etag:
+                        type: string
+                        description: presignedURLによるファイルアップロードのレスポンスヘッダーから得られるETag
+                blockChainUploadId:
+                  type: string
+                  description: ブロックチェーンアップロードID
+              required:
+                - contractFileId
+                - s3UploadId
+                - s3Parts
+                - blockChainUploadId
+      responses:
+        '200':
+          description: OK
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              description: 企業管理画面にて設定したオリジン
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      servers:
+        - url: 'https://api.rcde.jp'
+  /ext/v2/authenticated/contractFile/pointCloud/deleteMultipartUpload:
+    delete:
+      summary: Delete Multipart Upload Point Cloud
+      description: 点群マルチパートアップロード削除
+      operationId: post-ext-v2-authenticated-contractFile-pointCloud-deleteMultipartUpload
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/AccessToken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contractFileId:
+                  type: integer
+                  description: 契約項目ファイルID
+                s3UploadId:
+                  type: string
+                  description: S3アップロードID
+                blockChainUploadId:
+                  type: string
+                  description: ブロックチェーンアップロードID
+              required:
+                - contractFileId
+                - s3UploadId
+                - blockChainUploadId
+      responses:
+        '200':
+          description: OK
           headers:
             Access-Control-Allow-Origin:
               schema:
@@ -1829,3 +1958,121 @@ components:
              ERR0207004 | S3操作不正
           items:
             type: string
+    contractFile:
+      title: contractFile
+      type: object
+      description: 契約項目ファイル
+      properties:
+        id:
+          type: integer
+          description: 契約項目ファイルID
+        name:
+          type: string
+          description: ファイル名
+        category:
+          type: integer
+          description: |-
+            種別コード
+            - 設計情報: 1
+            - 施工管理（点群データ）: 2
+            - ヒートマップ: 3
+            - IFC: 4
+            - Slope: 5
+            - Trimmed Point Cloud: 6
+            - Generated Heat Map: 7
+            - Generated Slope Angle: 8
+            - Liner Information: 9
+            - 吹付: 10
+            - 覆工: 11
+            - 評価: 12
+            - DXF: 13
+            - OBJ: 14
+            - STL: 15
+            - RVT: 16
+        status:
+          type: integer
+          description: |-
+            ステータス
+            - WIP: 1
+            - Shared: 2
+            - Published（技術検査済み）: 3
+            - Archived（給付検査済み）: 4
+        fileCheckStatus:
+          type: integer
+          description: |-
+            ファイルの整合姓
+            - 未チェック: 1
+            - 正: 2
+            - 否: 3
+        createdAt:
+          type: string
+          description: 作成日
+        updatedAt:
+          type: string
+          description: 更新日
+        uploadedAt:
+          type: string
+          description: アップロード日
+        file:
+          $ref: '#/components/schemas/file'
+        contract:
+          $ref: '#/components/schemas/contract'
+        batchProcessingResult:
+          $ref: '#/components/schemas/batchProcessingResult'
+    file:
+      title: file
+      type: object
+      description: ファイル
+      properties:
+        id:
+          type: integer
+          description: ファイルID
+        size:
+          type: integer
+          description: ファイルサイズ
+        name:
+          type: string
+          description: ファイル名
+    contract:
+      title: contract
+      type: object
+      description: 契約項目
+      properties:
+        id:
+          type: integer
+          description: 契約項目ID
+        name:
+          type: string
+          description: 契約項目名
+        unitPrice:
+          type: integer
+          description: 契約単価
+        unitVolume:
+          type: integer
+          description: 契約数量
+        contractedAt:
+          type: string
+          description: 契約日
+        createdAt:
+          type: string
+          description: 作成日
+        status:
+          type: integer
+          description: |-
+            契約項目ステータス
+            「２：作成済み」が返却される
+    batchProcessingResult:
+      title: batchProcessingResult
+      type: object
+      description: バッチ処理結果
+      properties:
+        id:
+          type: integer
+          description: バッチ処理結果ID
+        status:
+          type: integer
+          description: |-
+            ステータス
+            - 開始: 1
+            - 進行中: 2
+            - 完了: 3
