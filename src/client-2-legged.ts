@@ -2,11 +2,12 @@ import axios from "axios";
 import { Api } from "./api-2-legged";
 import { ReadStream } from "fs";
 import { Buffer } from "buffer";
+import { ClientProps } from "./common";
 
 /**
- * RCDE API Client
+ * RCDE API Client for 2-legged authentication
  */
-class RCDEClient {
+class RCDEClient2Legged {
   private baseUrl: string;
   private clientId: string;
   private clientSecret: string;
@@ -24,12 +25,7 @@ class RCDEClient {
   /**
    * Initialize RCDE API Client
    */
-  constructor(props: {
-    domain?: string;
-    baseUrl: string;
-    clientId: string;
-    clientSecret: string;
-  }) {
+  constructor(props: ClientProps) {
     const { domain, baseUrl, clientId, clientSecret } = props;
     this.baseUrl = baseUrl;
     this.clientId = clientId;
@@ -642,4 +638,4 @@ class RCDEClient {
   }
 }
 
-export { RCDEClient };
+export { RCDEClient2Legged };

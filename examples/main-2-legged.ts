@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { RCDEClient } from "../src/client";
+import { RCDEClient } from "../src/client-2-legged";
 import fs from "fs";
 
 async function createConstruction(client: RCDEClient) {
