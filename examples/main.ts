@@ -1,7 +1,6 @@
 import "dotenv/config";
 import { RCDEClient } from "../src/client";
 import fs from "fs";
-import util from "util";
 
 async function createConstruction(client: RCDEClient) {
   const data = await client.createConstruction({
