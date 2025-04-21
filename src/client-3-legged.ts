@@ -526,6 +526,53 @@ class RCDEClient3Legged {
     return res.data;
   }
 
+    /**
+   * Upload point cloud file
+   * @param data point cloud file data
+   * @returns uploaded point cloud file data
+   */
+    public async uploadContractFile(
+      data: Omit<
+        Parameters<
+          Api["ext"]["postExt3LeggedV2AuthenticatedContractFilePointCloudMultipartUpload"]
+        >[0],
+        "size"
+      > & {
+        buffer: Buffer | ReadStream;
+        size?: number;
+      }
+    ) {
+      const { buffer, size: _size, ...rest } = data;
+  
+      let size = _size ?? 0;
+      if (buffer instanceof Buffer || buffer instanceof ArrayBuffer) {
+        size = buffer.byteLength;
+      }
+  
+      if (size === 0) {
+        throw new Error("size field is required if input buffer is ReadStream");
+      }
+
+      // TODO: 
+      // クライアント側のアップロード可能なファイル容量制限を元に、ファイルを分割し、
+      // その分割数をpartTotalとしてpostExt3LeggedV2AuthenticatedContractFilePointCloudMultipartUploadにPOST
+      // 返ってきたpresignedUploadParts分、presignedUploadParts内のpresignedURLにアップロード
+      // 返ってきたblockChainUploadURLs分、blockChainUploadURLs内のURLにアップロード
+
+      throw new Error("not implemented");
+
+      /*
+      // upload buffer via axios
+      await axios.put(presignedURL, buffer, {
+        headers: {
+          "Content-Type": "application/octet-stream",
+          "Content-Length": size.toString(),
+        },
+      });
+      */
+
+     }
+
   /**
    * Get download URL for contract file
    * @param contractId contract ID
