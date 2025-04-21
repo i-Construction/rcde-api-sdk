@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Api } from "./api";
+import { Api } from "./api-2-legged";
 import { ReadStream } from "fs";
 import { Buffer } from "buffer";
 
