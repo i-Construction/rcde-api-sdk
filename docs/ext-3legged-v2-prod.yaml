@@ -1195,6 +1195,89 @@ paths:
           $ref: '#/components/responses/InternalServerError'
       servers:
         - url: 'https://api.rcde.jp'
+  '/ext/v2/userAuthenticated/contractFile/{contractFileId}':
+    put:
+      summary: Update Contract File
+      description: 契約項目ファイル更新
+      operationId: put-ext-3legged-v2-authenticated-contractFile
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/AccessToken'
+        - $ref: '#/components/parameters/PathContractFileId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ファイル名
+                status:
+                  type: integer
+                  description: |-
+                    ステータス
+                    - WIP: 1
+                    - Shared: 2
+                    - Published（技術検査済み）: 3
+                    - Archived（給付検査済み）: 4
+            examples:
+              Example 1:
+                value:
+                  name: pointcloud.txt
+                  status: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contractFile'
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              description: 企業管理画面にて設定したオリジン
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      servers:
+        - url: 'https://api.rcde.jp'
+    delete:
+      summary: Delete Contract File
+      description: 契約項目ファイル削除
+      operationId: delete-ext-3legged-v2-authenticated-contractFile
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/AccessToken'
+        - $ref: '#/components/parameters/PathContractFileId'
+      responses:
+        '200':
+          description: OK
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              description: 企業管理画面にて設定したオリジン
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      servers:
+        - url: 'https://api.rcde.jp'
   /ext/v2/userAuthenticated/pclod/meta:
     get:
       summary: Get Pclod Meta
@@ -1301,6 +1384,81 @@ paths:
           $ref: '#/components/responses/InternalServerError'
       servers:
         - url: 'https://api.rcde.jp'
+
+  /ext/v2/userAuthenticated/equipmentToken:
+    post:
+      summary: Create Equipment Token
+      description: pub APIトークン作成
+      operationId: post-ext-3legged-v2-authenticated-equipmentToken
+      parameters:
+        - $ref: '#/components/parameters/Origin'
+        - $ref: '#/components/parameters/AccessToken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contractId:
+                  type: integer
+                  description: 契約項目ID
+                expirationType:
+                  type: integer
+                  description: |
+                    有効期限種別
+
+                    有効期限 | 設定値
+                    ---------|----------
+                     1時間 | 1
+                     12時間 | 2
+                     1日 | 3
+                     3日 | 4
+                     1週間 | 5
+                     1ヶ月 | 6
+                     3ヶ月 | 7
+                     半年 | 8
+                     1年 | 9
+                     永久 | 99
+              required:
+                - contractId
+                - expirationType
+            examples:
+              Example 1:
+                value:
+                  contractId: 1
+                  expirationType: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/equipmentToken'
+              examples:
+                Example 1:
+                  value:
+                    id: 1
+                    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                    expiredAt: '2025-01-01T12:00:00Z'
+                    isExpired: false
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+              description: 企業管理画面にて設定したオリジン
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      servers:
+        - url: 'https://api.rcde.jp'
+
 components:
   parameters:
     QueryConstructionId:
@@ -1525,6 +1683,7 @@ components:
              ERR0212001 | 入力パラメータエラー
              ERR0212002 | カテゴリー不正
              ERR0212003 | S3操作不正
+             ERR0213001 | 入力パラメータエラー
           items:
             type: string
     contractFile:
@@ -1748,3 +1907,21 @@ components:
                 description: 更新日
               construction:
                 $ref: '#/components/schemas/construction'
+    equipmentToken:
+      title: equipmentToken
+      type: object
+      description: pub APIトークン
+      properties:
+        id:
+          type: integer
+          description: トークンID
+        token:
+          type: string
+          description: トークン
+        expiredAt:
+          type: string
+          description: 有効期限
+          format: date-time
+        isExpired:
+          type: boolean
+          description: 有効期限切れの場合true

@@ -190,19 +190,19 @@ paths:
                   token:
                     type: string
                     description: トークン
-                  expiresAt:
+                  expiredAt:
                     type: string
                     description: 有効期限
                     format: date-time
                   isExpired:
                     type: boolean
-                    description: ステータス
+                    description: 有効期限切れの場合true
               examples:
                 Example 1:
                   value:
                     id: 2
                     token: zwsdbq11ZojOyE0fDXRIYd8LppYZgx
-                    expiresAt: '2024-08-07T07:02:35.628177136Z'
+                    expiredAt: '2024-08-07T07:02:35.628177136Z'
                     isExpired: true
           headers:
             Access-Control-Allow-Origin:
@@ -1634,7 +1634,7 @@ paths:
                     description: |-
                       処理ステータス
                       - pending: 保留中
-                      - completed: 完了 
+                      - completed: 完了
               examples:
                 Example 1:
                   value:
