@@ -77,6 +77,7 @@ export interface Errors {
    *  ERR0212001 | 入力パラメータエラー
    *  ERR0212002 | カテゴリー不正
    *  ERR0212003 | S3操作不正
+   *  ERR0213001 | 入力パラメータエラー
    */
   errors?: string[];
 }
@@ -277,6 +278,24 @@ export interface User {
     /** 現場情報 */
     construction?: Construction;
   }[];
+}
+
+/**
+ * equipmentToken
+ * pub APIトークン
+ */
+export interface EquipmentToken {
+  /** トークンID */
+  id?: number;
+  /** トークン */
+  token?: string;
+  /**
+   * 有効期限
+   * @format date-time
+   */
+  expiredAt?: string;
+  /** 有効期限切れの場合true */
+  isExpired?: boolean;
 }
 
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, HeadersDefaults, ResponseType } from "axios";
@@ -1024,6 +1043,52 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description 契約項目ファイル更新
+     *
+     * @name PutExt3LeggedV2AuthenticatedContractFile
+     * @summary Update Contract File
+     * @request PUT:/ext/v2/userAuthenticated/contractFile/{contractFileId}
+     */
+    putExt3LeggedV2AuthenticatedContractFile: (
+      contractFileId: number,
+      data: {
+        /** ファイル名 */
+        name?: string;
+        /**
+         * ステータス
+         * - WIP: 1
+         * - Shared: 2
+         * - Published（技術検査済み）: 3
+         * - Archived（給付検査済み）: 4
+         */
+        status?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ContractFile, Errors>({
+        path: `/ext/v2/userAuthenticated/contractFile/${contractFileId}`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 契約項目ファイル削除
+     *
+     * @name DeleteExt3LeggedV2AuthenticatedContractFile
+     * @summary Delete Contract File
+     * @request DELETE:/ext/v2/userAuthenticated/contractFile/{contractFileId}
+     */
+    deleteExt3LeggedV2AuthenticatedContractFile: (contractFileId: number, params: RequestParams = {}) =>
+      this.request<void, Errors>({
+        path: `/ext/v2/userAuthenticated/contractFile/${contractFileId}`,
+        method: "DELETE",
+        ...params,
+      }),
+
+    /**
      * @description メタ情報取得
      *
      * @name GetExt3LeggedV2AuthenticatedPclodMeta
@@ -1087,6 +1152,46 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/ext/v2/userAuthenticated/pclod/imageColor`,
         method: "GET",
         query: query,
+        ...params,
+      }),
+
+    /**
+     * @description pub APIトークン作成
+     *
+     * @name PostExt3LeggedV2AuthenticatedEquipmentToken
+     * @summary Create Equipment Token
+     * @request POST:/ext/v2/userAuthenticated/equipmentToken
+     */
+    postExt3LeggedV2AuthenticatedEquipmentToken: (
+      data: {
+        /** 契約項目ID */
+        contractId: number;
+        /**
+         * 有効期限種別
+         *
+         * 有効期限 | 設定値
+         * ---------|----------
+         *  1時間 | 1
+         *  12時間 | 2
+         *  1日 | 3
+         *  3日 | 4
+         *  1週間 | 5
+         *  1ヶ月 | 6
+         *  3ヶ月 | 7
+         *  半年 | 8
+         *  1年 | 9
+         *  永久 | 99
+         */
+        expirationType: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<EquipmentToken, Errors>({
+        path: `/ext/v2/userAuthenticated/equipmentToken`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
   };

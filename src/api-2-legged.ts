@@ -430,8 +430,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
            * 有効期限
            * @format date-time
            */
-          expiresAt?: string;
-          /** ステータス */
+          expiredAt?: string;
+          /** 有効期限切れの場合true */
           isExpired?: boolean;
         },
         Errors
