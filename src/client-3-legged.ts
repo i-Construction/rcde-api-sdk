@@ -3,6 +3,7 @@ import { Api as Api3Legged } from "./api-3-legged";
 import { ReadStream } from "fs";
 import { Buffer } from "buffer";
 import { ClientProps } from "./common";
+import { Chunkable, chunkedUpload, getTotalSize } from "./chunk-uploader";
 
 type Api = Api3Legged<unknown>;
 
@@ -475,30 +476,6 @@ class RCDEClient3Legged {
   }
 
   /**
-   * Get signed URL for uploading point cloud file
-   * @param data contract file data
-   * @returns signed URL for uploading point cloud file
-   */
-  private async createContractFileUploadUrl(
-    data: Parameters<
-      Api["ext"]["postExt3LeggedV2AuthenticatedContractFilePointCloudMultipartUpload"]
-    >[0]
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext[
-      "postExt3LeggedV2AuthenticatedContractFilePointCloudMultipartUpload"
-    ](data, {
-      baseURL: this.baseUrl,
-      headers: {
-        ...this.headers,
-        Authorization: `Bearer ${this.token.accessToken}`,
-      },
-    });
-    return res.data;
-  }
-
-  /**
    * Complete contract file upload
    * @param contractId contract file ID
    * @param data contract file data
@@ -536,29 +513,50 @@ class RCDEClient3Legged {
         Parameters<
           Api["ext"]["postExt3LeggedV2AuthenticatedContractFilePointCloudMultipartUpload"]
         >[0],
-        "size"
+        "size" | "partTotal"
       > & {
-        buffer: Buffer | ReadStream;
-        size?: number;
+        buffer: Chunkable;
+        chunkSize?: number; // default 5MB
       }
     ) {
-      const { buffer, size: _size, ...rest } = data;
-  
-      let size = _size ?? 0;
-      if (buffer instanceof Buffer || buffer instanceof ArrayBuffer) {
-        size = buffer.byteLength;
-      }
-  
-      if (size === 0) {
-        throw new Error("size field is required if input buffer is ReadStream");
-      }
+      const { buffer, chunkSize = 5 * 1024 * 1024, ...rest } = data;
 
-      // TODO: 
       // クライアント側のアップロード可能なファイル容量制限を元に、ファイルを分割し、
       // その分割数をpartTotalとしてpostExt3LeggedV2AuthenticatedContractFilePointCloudMultipartUploadにPOST
       // 返ってきたpresignedUploadParts分、presignedUploadParts内のpresignedURLにアップロード
       // 返ってきたblockChainUploadURLs分、blockChainUploadURLs内のURLにアップロード
+      const totalSize = await getTotalSize(buffer);
+      const partTotal = Math.ceil(totalSize / chunkSize);
 
+      const {
+        data: {
+          s3UploadId,
+          presignedUploadParts,
+          blockChainUploadId,
+          blockChainUploadURLs,
+          contractFileId
+        }
+      } = await this.api.ext["postExt3LeggedV2AuthenticatedContractFilePointCloudMultipartUpload"](
+        {
+          ...rest,
+          size: totalSize,
+          partTotal,
+        },
+        {
+          baseURL: this.baseUrl,
+          headers: {
+            ...this.headers,
+            Authorization: `Bearer ${this.token.accessToken}`,
+          },
+        }
+      );
+
+      if (presignedUploadParts.length !== blockChainUploadURLs.length) {
+        throw new Error("presignedUploadParts and blockChainUploadURLs length mismatch");
+      }
+
+      console.log(partTotal, presignedUploadParts.length, blockChainUploadURLs.length);
+  
       throw new Error("not implemented");
 
       /*

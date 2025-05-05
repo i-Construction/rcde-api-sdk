@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { RCDEClient3Legged } from "../src/client-3-legged";
+import fs from "fs";
 
 async function main() {
   const domain = process.env.DOMAIN;
@@ -21,7 +22,44 @@ async function main() {
   await client.authenticate();
 
   const list = await client.getConstructionList();
-  console.log(list);
+  console.log('constructions', list);
+  const construction = list.constructions?.[0];
+  if (!construction) {
+    throw new Error("construction not found");
+  }
+
+  const contracts = await client.getContractList({
+    constructionId: construction.id,
+  });
+  console.log('contracts', contracts);
+
+  const contract = contracts.contracts?.[0];
+  if (!contract) {
+    throw new Error("contract not found");
+  }
+
+  const name = "bunny.csv";
+  // const buffer = fs.createReadStream(`assets/${name}`);
+  // const size = fs.statSync(`assets/${name}`).size;
+  // get buffer from file
+  const buffer = fs.readFileSync(`assets/${name}`);
+  const size = buffer.byteLength;
+  const chunkSize = size / 3;
+  console.log(chunkSize);
+
+  try {
+    const res = await client.uploadContractFile({
+      contractId: contract.id!,
+      name,
+      buffer,
+      chunkSize,
+    });
+    console.log(res);
+  } catch (e) {
+    console.error(e);
+    // write error to file
+    fs.writeFileSync(`error.txt`, JSON.stringify(e, null, 2));
+  }
 
   /*
   const { constructions } = list;
