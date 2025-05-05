@@ -12,7 +12,7 @@ npm install @i-con/api-sdk
 yarn add @i-con/api-sdk
 ```
 
-## 事前準備
+## 事前準備 (2 legged oauth)
 
 RCDEのサイトでアプリケーションを作成します。
 
@@ -82,3 +82,16 @@ const uploadRes = await client.uploadContractFile({
 });
 
 ```
+
+## APIの認証手順 (3 legged oauth)
+
+- 1. rcde上の企業管理画面を開く
+- 2. アプリケーション一覧からアプリケーションを作成する
+- 3. rcde上の3-leggedのログイン画面からログインする（ID/PASSはr-cdeを使うときのログインに使っているユーザー情報）
+http://{rcdeのドメイン}/oauth/signIn?response_type=code&client_id={企業アプリケーション画面のクライアントID}&scope=all
+※日本語の部分は必要な値を埋めてください
+- 4. 上記ログイン後、企業アプリケーション画面で設定したコールバックURLへリダイレクトされる(コールバックURLのクエリ文字列の"code"に文字列が返ってくる(authCode))
+- 5. authCodeを使って、http://{rcdeのドメイン}/ext/v2/oauth/token APIでAPI tokenを生成する
+- 6. 2-leggedと同様にBearer tokenとしてAPI tokenを指定して、必要なAPIを叩く
+
+
