@@ -3,9 +3,8 @@ import { getContracteeClient } from "./3-legged-contractee";
 
 async function main() {
   const client = await getContracteeClient();
-
-  const list = await client.getConstructionList();
-  console.log('constructions', list);
+  const res = await client.approveContract(10);
+  console.log(res);
 }
 
 new Promise(async () => {

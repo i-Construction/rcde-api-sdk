@@ -388,11 +388,14 @@ class RCDEClient3Legged {
   ) {
     this.isTokenAvailable();
     
-    const res = await this.api.ext["postExt3LeggedV2AuthenticatedContractApprove"](
+    const res = await this.api.ext["putExt3LeggedV2AuthenticatedContractApproved"](
       contractId,
-      {},
       {
         baseURL: this.baseUrl,
+        headers: {
+          ...this.headers,
+          Authorization: `Bearer ${this.token.accessToken}`,
+        },
       }
     );
     return res.data;
