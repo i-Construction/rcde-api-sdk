@@ -21,7 +21,8 @@
     "dev": "vite --host",
     "2-legged": "tsx examples/main-2-legged.ts",
     "3-legged-contractor-create-contract": "tsx examples/main-3-legged-contractor-create-contract.ts",
-    "3-legged-contractee-approve-contract": "tsx examples/main-3-legged-contractee-approve-contract.ts"
+    "3-legged-contractee-approve-contract": "tsx examples/main-3-legged-contractee-approve-contract.ts",
+    "3-legged-contractee-upload-contract-files": "tsx examples/main-3-legged-contractee-upload-contract-files.ts"
   },
   "files": [
     "dist"

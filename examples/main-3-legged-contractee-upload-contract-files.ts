@@ -1,15 +1,13 @@
 import "dotenv/config";
-import { RCDEClient3Legged } from "../src/client-3-legged";
 import fs from "fs";
 import { getContracteeClient } from "./3-legged-contractee";
 
 async function main() {
-  // console.log(buffer.byteLength);
-
   const client = await getContracteeClient();
+  const contractId = 10;
 
-  return;
-  /*
+  const contract = await client.getContract(contractId);
+  console.log(contract);
 
   const name = "bunny.csv";
   // const buffer = fs.createReadStream(`assets/${name}`);
@@ -22,7 +20,7 @@ async function main() {
 
   try {
     const res = await client.uploadContractFile({
-      contractId: contract.id!,
+      contractId,
       name,
       buffer,
       chunkSize,
@@ -33,13 +31,6 @@ async function main() {
     // write error to file
     fs.writeFileSync(`error.txt`, JSON.stringify(e, null, 2));
   }
-
-  const { constructions } = list;
-  constructions?.forEach(async (construction) => {
-    const getRes = await client.getConstruction(construction.id);
-    console.log(getRes);
-  });
-  */
 }
 
 new Promise(async () => {

@@ -500,20 +500,16 @@ class RCDEClient3Legged {
 
   /**
    * Complete contract file upload
-   * @param contractId contract file ID
-   * @param data contract file data
    * @returns completed contract file data
    */
   private async completeContractFileUpload(
-    contractId: Parameters<
-      Api["ext"]["putExt3LeggedV2AuthenticatedContract"]
+    data: Parameters<
+      Api["ext"]["putExt3LeggedV2AuthenticatedContractFilePointCloudCompleteMultipartUpload"]
     >[0],
-    data: Parameters<Api["ext"]["putExt3LeggedV2AuthenticatedContract"]>[1]
   ) {
     this.isTokenAvailable();
 
-    const res = await this.api.ext["putExt3LeggedV2AuthenticatedContract"](
-      contractId,
+    const res = await this.api.ext["putExt3LeggedV2AuthenticatedContractFilePointCloudCompleteMultipartUpload"](
       data,
       {
         baseURL: this.baseUrl,
@@ -579,20 +575,49 @@ class RCDEClient3Legged {
         throw new Error("presignedUploadParts and blockChainUploadURLs length mismatch");
       }
 
-      console.log(partTotal, presignedUploadParts.length, blockChainUploadURLs.length);
-  
-      throw new Error("not implemented");
+      const s3Parts: {
+        partNumber: number;
+        etag: string;
+      }[] = [];
 
-      /*
-      // upload buffer via axios
-      await axios.put(presignedURL, buffer, {
-        headers: {
-          "Content-Type": "application/octet-stream",
-          "Content-Length": size.toString(),
+      await chunkedUpload(buffer, {
+        upload: async (chunk, part, offset, total) => {
+          console.log('chunked');
+          console.log(part, offset, total);
+
+          const presignedURL = presignedUploadParts[part].presignedURL;
+          const blockChainUploadURL = blockChainUploadURLs[part];
+          const res = await axios.put(presignedURL, chunk, {
+            headers: {
+              "Content-Type": "application/octet-stream",
+              "Content-Length": chunk.length.toString(),
+            },
+          });
+          await axios.put(blockChainUploadURL, chunk, {
+            headers: {
+              "Content-Type": "application/octet-stream",
+              "Content-Length": chunk.length.toString(),
+            },
+          });
+
+          console.log(res.headers);
+
+          s3Parts.push({
+            partNumber: part,
+            etag: res.headers.etag,
+          });
         },
       });
-      */
 
+      const completeRes = await this.completeContractFileUpload(
+        {
+          contractFileId,
+          s3UploadId,
+          blockChainUploadId,
+          s3Parts
+        },
+      );
+      return completeRes;
      }
 
   /**
