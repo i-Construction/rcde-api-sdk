@@ -9,7 +9,9 @@ async function main() {
   const contract = await client.getContract(contractId);
   console.log(contract);
 
-  const name = "bunny.csv";
+  // const name = "bunny.csv";
+  const name = "BLNo75-76.csv";
+
   // const buffer = fs.createReadStream(`assets/${name}`);
   // const size = fs.statSync(`assets/${name}`).size;
   // get buffer from file
