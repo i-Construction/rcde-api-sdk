@@ -575,39 +575,35 @@ class RCDEClient3Legged {
         throw new Error("presignedUploadParts and blockChainUploadURLs length mismatch");
       }
 
+      // console.log('presignedUploadParts', presignedUploadParts);
+      // console.log('blockChainUploadURLs', blockChainUploadURLs);
+
       const s3Parts: {
         partNumber: number;
         etag: string;
       }[] = [];
 
       await chunkedUpload(buffer, {
-        upload: async (chunk, part, offset, total) => {
-          console.log('chunked');
-          console.log(part, offset, total);
+        upload: async (chunk, index, offset, total) => {
+          const { presignedURL, partNumber } = presignedUploadParts[index];
+          const blockChainUploadURL = blockChainUploadURLs[index];
 
-          const presignedURL = presignedUploadParts[part].presignedURL;
-          const blockChainUploadURL = blockChainUploadURLs[part];
-          const res = await axios.put(presignedURL, chunk, {
-            headers: {
-              "Content-Type": "application/octet-stream",
-              "Content-Length": chunk.length.toString(),
-            },
-          });
-          await axios.put(blockChainUploadURL, chunk, {
-            headers: {
-              "Content-Type": "application/octet-stream",
-              "Content-Length": chunk.length.toString(),
-            },
-          });
+          const form = new FormData();
+          const blob = new Blob([chunk]);
+          form.append('file', blob);
 
-          console.log(res.headers);
+          const res = await axios.put(presignedURL, form);
+          await axios.put(blockChainUploadURL, form);
+          console.log(res.headers.etag);
 
           s3Parts.push({
-            partNumber: part,
+            partNumber,
             etag: res.headers.etag,
           });
         },
       });
+
+      // console.log('s3 parts', s3Parts);
 
       const completeRes = await this.completeContractFileUpload(
         {

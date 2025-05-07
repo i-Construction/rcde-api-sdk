@@ -37,58 +37,58 @@ async function getTotalSize(input: Chunkable): Promise<number | null> {
   return null;
 }
 
+async function* chunks(input: Chunkable, chunkSize: number): AsyncGenerator<Uint8Array, void, void> {
+  // Blob/File ---------------------------------
+  if (input instanceof Blob) {
+    for (let o = 0; o < input.size; o += chunkSize) {
+      yield new Uint8Array(await input.slice(o, o + chunkSize).arrayBuffer());
+    }
+    return;
+  }
+
+  // ArrayBuffer / Uint8Array ------------------
+  if (input instanceof ArrayBuffer || ArrayBuffer.isView(input)) {
+    const buf = input instanceof ArrayBuffer ? new Uint8Array(input) : input;
+    for (let o = 0; o < buf.byteLength; o += chunkSize) {
+      yield buf.subarray(o, o + chunkSize);
+    }
+    return;
+  }
+
+  // WHATWG ReadableStream<Uint8Array> ----------
+  if (
+    typeof ReadableStream !== "undefined" &&
+    input instanceof ReadableStream
+  ) {
+    const reader = input.getReader();
+    let carry = new Uint8Array(0);
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      carry = concat(carry, value);
+      while (carry.byteLength >= chunkSize) {
+        yield carry.subarray(0, chunkSize);
+        carry = carry.subarray(chunkSize);
+      }
+    }
+    if (carry.byteLength) yield carry;
+    return;
+  }
+}
+
 async function chunkedUpload(
   input: Chunkable,
   { upload, chunkSize = FIVE_MB, onProgress }: Options
 ): Promise<void> {
   const totalSize = await getTotalSize(input);
 
-  //
-  async function* chunks(): AsyncGenerator<Uint8Array, void, void> {
-    // Blob/File ---------------------------------
-    if (input instanceof Blob) {
-      for (let o = 0; o < input.size; o += chunkSize) {
-        yield new Uint8Array(await input.slice(o, o + chunkSize).arrayBuffer());
-      }
-      return;
-    }
-
-    // ArrayBuffer / Uint8Array ------------------
-    if (input instanceof ArrayBuffer || ArrayBuffer.isView(input)) {
-      const buf = input instanceof ArrayBuffer ? new Uint8Array(input) : input;
-      for (let o = 0; o < buf.byteLength; o += chunkSize) {
-        yield buf.subarray(o, o + chunkSize);
-      }
-      return;
-    }
-
-    // WHATWG ReadableStream<Uint8Array> ----------
-    if (
-      typeof ReadableStream !== "undefined" &&
-      input instanceof ReadableStream
-    ) {
-      const reader = input.getReader();
-      let carry = new Uint8Array(0);
-      for (;;) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        carry = concat(carry, value);
-        while (carry.byteLength >= chunkSize) {
-          yield carry.subarray(0, chunkSize);
-          carry = carry.subarray(chunkSize);
-        }
-      }
-      if (carry.byteLength) yield carry;
-      return;
-    }
-  }
-
-  let part = 1;
+  let index = 0;
   let offset = 0;
   let sent = 0;
 
-  for await (const chunk of chunks()) {
-    await upload(chunk, part++, offset, totalSize);
+  for await (const chunk of chunks(input, chunkSize)) {
+    await upload(chunk, index, offset, totalSize);
+    index++;
     sent += chunk.byteLength;
     onProgress?.(sent, totalSize);
     offset += chunk.byteLength;
