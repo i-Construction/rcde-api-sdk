@@ -1,42 +1,15 @@
 import "dotenv/config";
 import { RCDEClient3Legged } from "../src/client-3-legged";
 import fs from "fs";
+import { getContracteeClient } from "./3-legged-contractee";
 
 async function main() {
-  const domain = process.env.DOMAIN;
-  const baseUrl = process.env.BASE_URL;
-  const clientId = process.env.CLIENT_ID;
-  const clientSecret = process.env.CLIENT_SECRET;
-  const authCode = process.env.AUTH_CODE;
-  console.log(domain, baseUrl, clientId, clientSecret, authCode);
-
   // console.log(buffer.byteLength);
 
-  const client = new RCDEClient3Legged({
-    domain,
-    baseUrl: baseUrl!,
-    clientId: clientId!,
-    clientSecret: clientSecret!,
-    authCode: authCode!,
-  });
-  await client.authenticate();
+  const client = await getContracteeClient();
 
-  const list = await client.getConstructionList();
-  console.log('constructions', list);
-  const construction = list.constructions?.[0];
-  if (!construction) {
-    throw new Error("construction not found");
-  }
-
-  const contracts = await client.getContractList({
-    constructionId: construction.id,
-  });
-  console.log('contracts', contracts);
-
-  const contract = contracts.contracts?.[0];
-  if (!contract) {
-    throw new Error("contract not found");
-  }
+  return;
+  /*
 
   const name = "bunny.csv";
   // const buffer = fs.createReadStream(`assets/${name}`);
@@ -61,7 +34,6 @@ async function main() {
     fs.writeFileSync(`error.txt`, JSON.stringify(e, null, 2));
   }
 
-  /*
   const { constructions } = list;
   constructions?.forEach(async (construction) => {
     const getRes = await client.getConstruction(construction.id);

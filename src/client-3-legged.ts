@@ -379,6 +379,26 @@ class RCDEClient3Legged {
   }
 
   /**
+   * Approve contract
+   * @param contractId contract ID
+   * @returns approved contract data
+   */
+  public async approveContract(
+    contractId: Parameters<Api["ext"]["putExt3LeggedV2AuthenticatedContractApproved"]>[0]
+  ) {
+    this.isTokenAvailable();
+    
+    const res = await this.api.ext["postExt3LeggedV2AuthenticatedContractApprove"](
+      contractId,
+      {},
+      {
+        baseURL: this.baseUrl,
+      }
+    );
+    return res.data;
+  }
+
+  /**
    * Get contract file list
    * @param query
    * @returns contract file list
@@ -505,6 +525,7 @@ class RCDEClient3Legged {
 
     /**
    * Upload point cloud file
+   * 受注者しかアップロードができない仕様 (受注者としてログインしたときに返却されるauth codeを認証時に指定する)
    * @param data point cloud file data
    * @returns uploaded point cloud file data
    */

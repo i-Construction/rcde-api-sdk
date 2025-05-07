@@ -19,8 +19,9 @@
     "generate-2-legged": "swagger-typescript-api -p ./docs/ext-v2-prod.yaml -o ./src -n api-2-legged.ts --axios",
     "generate-3-legged": "swagger-typescript-api -p ./docs/ext-3legged-v2-prod.yaml -o ./src -n api-3-legged.ts --axios",
     "dev": "vite --host",
-    "cli-dev-2-legged": "tsx examples/main-2-legged.ts",
-    "cli-dev-3-legged": "tsx examples/main-3-legged.ts"
+    "2-legged": "tsx examples/main-2-legged.ts",
+    "3-legged-contractor-create-contract": "tsx examples/main-3-legged-contractor-create-contract.ts",
+    "3-legged-contractee-approve-contract": "tsx examples/main-3-legged-contractee-approve-contract.ts"
   },
   "files": [
     "dist"
