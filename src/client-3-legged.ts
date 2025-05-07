@@ -584,6 +584,7 @@ class RCDEClient3Legged {
       }[] = [];
 
       await chunkedUpload(buffer, {
+        chunkSize,
         upload: async (chunk, index, offset, total) => {
           const { presignedURL, partNumber } = presignedUploadParts[index];
           const blockChainUploadURL = blockChainUploadURLs[index];
@@ -594,7 +595,6 @@ class RCDEClient3Legged {
 
           const res = await axios.put(presignedURL, form);
           await axios.put(blockChainUploadURL, form);
-          console.log(res.headers.etag);
 
           s3Parts.push({
             partNumber,
