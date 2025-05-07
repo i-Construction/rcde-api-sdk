@@ -20,9 +20,9 @@
     "generate-3-legged": "swagger-typescript-api -p ./docs/ext-3legged-v2-prod.yaml -o ./src -n api-3-legged.ts --axios",
     "dev": "vite --host",
     "2-legged": "tsx examples/main-2-legged.ts",
-    "3-legged-contractor-create-contract": "tsx examples/main-3-legged-contractor-create-contract.ts",
-    "3-legged-contractee-approve-contract": "tsx examples/main-3-legged-contractee-approve-contract.ts",
-    "3-legged-contractee-upload-contract-files": "tsx examples/main-3-legged-contractee-upload-contract-files.ts"
+    "3-legged-contractor-create-contract": "tsx examples/3-legged-contractor-create-contract.ts",
+    "3-legged-contractee-approve-contract": "tsx examples/3-legged-contractee-approve-contract.ts",
+    "3-legged-contractee-upload-contract-files": "tsx examples/3-legged-contractee-upload-contract-files.ts"
   },
   "files": [
     "dist"
