@@ -73,6 +73,117 @@ export interface Errors {
   errors?: string[];
 }
 
+/**
+ * contractFile
+ * 契約項目ファイル
+ */
+export interface ContractFile {
+  /** 契約項目ファイルID */
+  id?: number;
+  /** ファイル名 */
+  name?: string;
+  /**
+   * 種別コード
+   * - 設計情報: 1
+   * - 施工管理（点群データ）: 2
+   * - ヒートマップ: 3
+   * - IFC: 4
+   * - Slope: 5
+   * - Trimmed Point Cloud: 6
+   * - Generated Heat Map: 7
+   * - Generated Slope Angle: 8
+   * - Liner Information: 9
+   * - 吹付: 10
+   * - 覆工: 11
+   * - 評価: 12
+   * - DXF: 13
+   * - OBJ: 14
+   * - STL: 15
+   * - RVT: 16
+   */
+  category?: number;
+  /**
+   * ステータス
+   * - WIP: 1
+   * - Shared: 2
+   * - Published（技術検査済み）: 3
+   * - Archived（給付検査済み）: 4
+   */
+  status?: number;
+  /**
+   * ファイルの整合姓
+   * - 未チェック: 1
+   * - 正: 2
+   * - 否: 3
+   */
+  fileCheckStatus?: number;
+  /** 作成日 */
+  createdAt?: string;
+  /** 更新日 */
+  updatedAt?: string;
+  /** アップロード日 */
+  uploadedAt?: string;
+  /** ファイル */
+  file?: File;
+  /** 契約項目 */
+  contract?: Contract;
+  /** バッチ処理結果 */
+  batchProcessingResult?: BatchProcessingResult;
+}
+
+/**
+ * file
+ * ファイル
+ */
+export interface File {
+  /** ファイルID */
+  id?: number;
+  /** ファイルサイズ */
+  size?: number;
+  /** ファイル名 */
+  name?: string;
+}
+
+/**
+ * contract
+ * 契約項目
+ */
+export interface Contract {
+  /** 契約項目ID */
+  id?: number;
+  /** 契約項目名 */
+  name?: string;
+  /** 契約単価 */
+  unitPrice?: number;
+  /** 契約数量 */
+  unitVolume?: number;
+  /** 契約日 */
+  contractedAt?: string;
+  /** 作成日 */
+  createdAt?: string;
+  /**
+   * 契約項目ステータス
+   * 「２：作成済み」が返却される
+   */
+  status?: number;
+}
+
+/**
+ * batchProcessingResult
+ * バッチ処理結果
+ */
+export interface BatchProcessingResult {
+  /** バッチ処理結果ID */
+  id?: number;
+  /**
+   * ステータス
+   * - 開始: 1
+   * - 進行中: 2
+   * - 完了: 3
+   */
+  status?: number;
+}
+
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, HeadersDefaults, ResponseType } from "axios";
 import axios from "axios";
 
@@ -319,8 +430,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
            * 有効期限
            * @format date-time
            */
-          expiresAt?: string;
-          /** ステータス */
+          expiredAt?: string;
+          /** 有効期限切れの場合true */
           isExpired?: boolean;
         },
         Errors
@@ -784,91 +895,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         {
           /** 契約項目ファイル総数 */
           total?: number;
-          contractFiles?: {
-            /** 契約項目ファイルID */
-            id?: number;
-            /** ファイル名 */
-            name?: string;
-            /**
-             * 種別コード
-             * - 設計情報: 1
-             * -  施工管理（点群データ）: 2
-             * - ヒートマップ: 3
-             * - IFC: 4
-             * - Slope: 5
-             * - Trimmed Point Cloud: 6
-             * - Generated Heat Map: 7
-             * - Generated Slope Angle: 8
-             * - Liner Information: 9
-             * - 吹付: 10
-             * - 覆工: 11
-             * - 評価: 12
-             * - DXF: 13
-             * - OBJ: 14
-             * - STL: 15
-             * - RVT: 16
-             */
-            category?: number;
-            /**
-             * ステータス
-             * - WIP: 1
-             * - Shared: 2
-             * - 技術検査済み: 3
-             * - 給付検査済み: 4
-             */
-            status?: number;
-            /**
-             * ファイルの整合姓
-             * - 未チェック: 1
-             * - 正: 2
-             * - 否: 3
-             */
-            fileCheckStatus?: number;
-            /** 作成日 */
-            createdAt?: string;
-            /** 更新日 */
-            updatedAt?: string;
-            /** アップロード日 */
-            uploadedAt?: string;
-            file?: {
-              /** ファイルID */
-              id?: number;
-              /** ファイルサイズ */
-              size?: number;
-              /** ファイル名 */
-              name?: string;
-            };
-            contract?: {
-              /** 契約項目ID */
-              id?: number;
-              /** 契約項目名 */
-              name?: string;
-              /** 契約単価 */
-              unitPrice?: number;
-              /** 契約数量 */
-              unitVolume?: number;
-              /** 契約日 */
-              contractedAt?: string;
-              /** 作成日 */
-              createdAt?: string;
-              /**
-               * 契約項目ステータス
-               * 「２：作成済み」が返却される
-               */
-              status?: number;
-            };
-            batchProcessingResult?: {
-              /** バッチ処理結果ID */
-              id?: number;
-              /**
-               * ステータス
-               * - 開始: 1
-               * - 進行中: 2
-               * - 完了: 3
-               */
-              status?: number;
-            };
-          }[];
+          contractFiles?: ContractFile[];
         },
         void
       >({
@@ -876,6 +903,52 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "GET",
         query: query,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 契約項目ファイル編集
+     *
+     * @name PutExtV2AuthenticatedContractFile
+     * @summary Put Contract File
+     * @request PUT:/ext/v2/authenticated/contractFile/{contractFileId}
+     */
+    putExtV2AuthenticatedContractFile: (
+      contractFileId: string,
+      data: {
+        /** ファイル名 */
+        name?: string;
+        /**
+         * ステータス
+         * - WIP: 1
+         * - Shared: 2
+         * - Published（技術検査済み）: 3
+         * - Archived（給付検査済み）: 4
+         */
+        status?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ContractFile, any>({
+        path: `/ext/v2/authenticated/contractFile/${contractFileId}`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 契約項目ファイル削除
+     *
+     * @name DeleteExtV2AuthenticatedContractFile
+     * @summary Delete Contract File
+     * @request DELETE:/ext/v2/authenticated/contractFile/{contractFileId}
+     */
+    deleteExtV2AuthenticatedContractFile: (contractFileId: string, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/ext/v2/authenticated/contractFile/${contractFileId}`,
+        method: "DELETE",
         ...params,
       }),
 
@@ -989,6 +1062,112 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
+     * @description 点群マルチパートアップロード(2種類のアップロードURLが返るのでそれぞれにアップロードする)
+     *
+     * @name PostExtV2AuthenticatedContractFilePointCloudMultipartUpload
+     * @summary Multipart Upload Point Cloud
+     * @request POST:/ext/v2/authenticated/contractFile/pointCloud/multipartUpload
+     */
+    postExtV2AuthenticatedContractFilePointCloudMultipartUpload: (
+      data: {
+        /** 契約項目ID */
+        contractId: number;
+        /** ファイル名 */
+        name: string;
+        /** ファイルサイズ */
+        size: number;
+        /** ファイルの分割数 */
+        partTotal: number;
+        pointCloudAttribute?: PointCloudAttribute;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<
+        {
+          /** S3アップロードID */
+          s3UploadId?: string;
+          presignedUploadParts?: {
+            /** パート番号 */
+            partNumber?: number;
+            /** 署名付きURL(S3の署名付きURLによるアップロード方法) */
+            presignedURL?: string;
+          }[];
+          /** ブロックチェーンアップロードID */
+          blockChainUploadId?: string;
+          /** ブロックチェーンアップロードURL一覧(PUTメソッドかつmultipart/form-dataでアップロードする) */
+          blockChainUploadURLs?: string[];
+          /** 契約項目ファイルID */
+          contractFileId?: number;
+        },
+        Errors
+      >({
+        path: `/ext/v2/authenticated/contractFile/pointCloud/multipartUpload`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 点群マルチパートアップロード完了
+     *
+     * @name PostExtV2AuthenticatedContractFilePointCloudCompleteMultipartUpload
+     * @summary Complete Multipart Upload Point Cloud
+     * @request PUT:/ext/v2/authenticated/contractFile/pointCloud/completeMultipartUpload
+     */
+    postExtV2AuthenticatedContractFilePointCloudCompleteMultipartUpload: (
+      data: {
+        /** 契約項目ファイルID */
+        contractFileId: number;
+        /** S3アップロードID */
+        s3UploadId: string;
+        s3Parts: {
+          /** パート番号 */
+          partNumber?: number;
+          /** presignedURLによるファイルアップロードのレスポンスヘッダーから得られるETag */
+          etag?: string;
+        }[];
+        /** ブロックチェーンアップロードID */
+        blockChainUploadId: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Errors>({
+        path: `/ext/v2/authenticated/contractFile/pointCloud/completeMultipartUpload`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description 点群マルチパートアップロード削除
+     *
+     * @name PostExtV2AuthenticatedContractFilePointCloudDeleteMultipartUpload
+     * @summary Delete Multipart Upload Point Cloud
+     * @request DELETE:/ext/v2/authenticated/contractFile/pointCloud/deleteMultipartUpload
+     */
+    postExtV2AuthenticatedContractFilePointCloudDeleteMultipartUpload: (
+      data: {
+        /** 契約項目ファイルID */
+        contractFileId: number;
+        /** S3アップロードID */
+        s3UploadId: string;
+        /** ブロックチェーンアップロードID */
+        blockChainUploadId: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, Errors>({
+        path: `/ext/v2/authenticated/contractFile/pointCloud/deleteMultipartUpload`,
+        method: "DELETE",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
      * @description ファイルダウンロードURL取得
      *
      * @name GetExtV2AuthenticatedContractFileDownloadUrl
@@ -1093,7 +1272,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ArrayBuffer, Errors>({
+      this.request<File, Errors>({
         path: `/ext/v2/authenticated/pclod/imagePosition`,
         method: "GET",
         query: query,
@@ -1120,7 +1299,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ArrayBuffer, Errors>({
+      this.request<File, Errors>({
         path: `/ext/v2/authenticated/pclod/imageColor`,
         method: "GET",
         query: query,

@@ -1,8 +1,8 @@
 import "dotenv/config";
-import { RCDEClient } from "../src/client";
+import { RCDEClient2Legged } from "../src/client-2-legged";
 import fs from "fs";
 
-async function createConstruction(client: RCDEClient) {
+async function createConstruction(client: RCDEClient2Legged) {
   const data = await client.createConstruction({
     name: "Test Construction",
     address: "amagasaki",
@@ -19,29 +19,30 @@ async function main() {
   const baseUrl = process.env.BASE_URL;
   const clientId = process.env.CLIENT_ID;
   const clientSecret = process.env.CLIENT_SECRET;
-  // console.log(domain, baseUrl, clientId, clientSecret);
+  console.log(domain, baseUrl, clientId, clientSecret);
 
   // console.log(buffer.byteLength);
 
-  const client = new RCDEClient({
+  const client = new RCDEClient2Legged({
     domain,
-    baseUrl,
-    clientId,
-    clientSecret,
+    baseUrl: baseUrl!,
+    clientId: clientId!,
+    clientSecret: clientSecret!,
   });
   await client.authenticate();
 
-  const name = "bunny.csv";
+  // const name = "bunny.csv";
+  const name = "uav.txt";
   const buffer = fs.createReadStream(`assets/${name}`);
+  const size = fs.statSync(`assets/${name}`).size;
 
-  // createConstruction(client);
+  // await createConstruction(client);
 
   const list = await client.getConstructionList();
-  console.log(list);
 
   const { constructions } = list;
   constructions?.forEach(async (construction) => {
-    const getRes = await client.getConstruction(construction.id);
+    const getRes = await client.getConstruction(construction.id!);
     console.log(getRes);
 
     const data = await client.getContractList({
@@ -65,14 +66,15 @@ async function main() {
           contractId,
           contractFile.id!
         );
-        console.log("presignedURL", url);
+        // console.log("presignedURL", url);
 
         const status = await client.getContractFileProcessingStatus(
           contractId,
           contractFile.id!
         );
-        console.log("status", status);
+        console.log(contractFile.id, contractFile.name, "status", status);
 
+        /*
         const meta = (await client.getContractFileMetadata({
           contractId,
           contractFileId: contractFile.id,
@@ -88,6 +90,10 @@ async function main() {
             >
           >;
         };
+        console.log("meta", meta);
+        */
+
+        /*
         const { coordinates } = meta;
         Object.keys(coordinates).forEach((l) => {
           const addresses = Object.keys(coordinates[l]);
@@ -109,6 +115,7 @@ async function main() {
             console.log("color", color.byteLength);
           });
         });
+        */
       });
 
       /*
@@ -116,6 +123,7 @@ async function main() {
         contractId: contract.id,
         name,
         buffer,
+        size,
       });
       console.log(uploadRes);
       */

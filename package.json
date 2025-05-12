@@ -1,6 +1,6 @@
 {
   "name": "@i-con/api-sdk",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "publishConfig": {
     "access": "public"
   },
@@ -16,9 +16,13 @@
   },
   "scripts": {
     "build": "tsc",
-    "generate": "swagger-typescript-api -p ./docs/ext-v2-prod.yaml -o ./src -n api.ts --axios",
+    "generate-2-legged": "swagger-typescript-api -p ./docs/ext-v2-prod.yaml -o ./src -n api-2-legged.ts --axios",
+    "generate-3-legged": "swagger-typescript-api -p ./docs/ext-3legged-v2-prod.yaml -o ./src -n api-3-legged.ts --axios",
     "dev": "vite --host",
-    "cli-dev": "tsx examples/main.ts"
+    "2-legged": "tsx examples/main-2-legged.ts",
+    "3-legged-contractor-create-contract": "tsx examples/3-legged-contractor-create-contract.ts",
+    "3-legged-contractee-approve-contract": "tsx examples/3-legged-contractee-approve-contract.ts",
+    "3-legged-contractee-upload-contract-files": "tsx examples/3-legged-contractee-upload-contract-files.ts"
   },
   "files": [
     "dist"
