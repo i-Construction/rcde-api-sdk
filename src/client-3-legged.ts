@@ -524,7 +524,7 @@ class RCDEClient3Legged {
 
     /**
    * Upload point cloud file
-   * 受注者しかアップロードができない仕様 (受注者としてログインしたときに返却されるauth codeを認証時に指定する)
+   * Only the contractor can upload the point cloud file
    * @param data point cloud file data
    * @returns uploaded point cloud file data
    */
@@ -541,10 +541,8 @@ class RCDEClient3Legged {
     ) {
       const { buffer, chunkSize = 5 * 1024 * 1024, ...rest } = data;
 
-      // クライアント側のアップロード可能なファイル容量制限を元に、ファイルを分割し、
-      // その分割数をpartTotalとしてpostExt3LeggedV2AuthenticatedContractFilePointCloudMultipartUploadにPOST
-      // 返ってきたpresignedUploadParts分、presignedUploadParts内のpresignedURLにアップロード
-      // 返ってきたblockChainUploadURLs分、blockChainUploadURLs内のURLにアップロード
+      // Based on the uploadable file capacity limit on the client side, divide the file into parts,
+      // and post the number of parts as partTotal to postExt3LeggedV2AuthenticatedContractFilePointCloudMultipartUpload
       const totalSize = await getTotalSize(buffer);
       const partTotal = Math.ceil(totalSize / chunkSize);
 
@@ -575,9 +573,6 @@ class RCDEClient3Legged {
         throw new Error("presignedUploadParts and blockChainUploadURLs length mismatch");
       }
 
-      // console.log('presignedUploadParts', presignedUploadParts);
-      // console.log('blockChainUploadURLs', blockChainUploadURLs);
-
       const s3Parts: {
         partNumber: number;
         etag: string;
@@ -602,8 +597,6 @@ class RCDEClient3Legged {
           });
         },
       });
-
-      // console.log('s3 parts', s3Parts);
 
       const completeRes = await this.completeContractFileUpload(
         {
