@@ -8,72 +8,128 @@ import { Chunkable, chunkedUpload, getTotalSize } from "./chunk-uploader";
 type Api = Api3Legged<unknown>;
 
 type ClientProps3Legged = {
+  /** 初回の認可コード（後から authenticate() でも可） */
   authCode: string;
 } & ClientProps;
 
+type Token = {
+  accessToken: string;
+  refreshToken: string;
+  /** 有効期限（秒 since epoch） */
+  expiresAt: number;
+};
+
 /**
- * RCDE API Client
+ * RCDE API Client (3-legged)
+ * - リフレッシュ: A方式（POST /ext/v2/oauth/token + grant_type=refresh_token）
+ * - 自動リフレッシュ内蔵（期限の60秒前で更新）
+ * - トークン永続化は利用側（setToken/getToken で入出力）
  */
 class RCDEClient3Legged {
   private baseUrl: string;
   private clientId: string;
   private clientSecret: string;
   private api: Api;
-  private headers?: {
+  private headers: {
     Origin: string;
-    "Content-Type": string;
+    "Content-Type": "application/json";
   };
-  private token?: {
-    accessToken?: string;
-    refreshToken?: string;
-    expiresAt?: number;
-  };
+  private token?: Token;
 
-  private authCode: string;
-
-  /**
-   * Initialize RCDE API Client
-   */
   constructor(props: ClientProps3Legged) {
-    const { domain, baseUrl, clientId, clientSecret, authCode } = props;
+    const { baseUrl, clientId, clientSecret, domain } = props;
     this.baseUrl = baseUrl;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
-    this.authCode = authCode;
+    this.api = new Api3Legged({ withCredentials: true });
+    this.headers = {
+      Origin: domain ?? "",
+      "Content-Type": "application/json",
+    };
+  }
 
-    this.api = new Api3Legged({
-      withCredentials: true,
+  /**
+   * トークンの外部セット/取得（永続化は利用側）
+   */
+  public setToken(token: Token) {
+    this.token = token;
+  }
+
+  public getToken(): Token {
+    this.isTokenAvailable();
+    // 破壊的変更を避けるためコピーを返す
+    return { ...(this.token as Token) };
+  }
+
+  /**
+   * 初回の認可コードからアクセストークンを取得
+   */
+  public async authenticate(authCode: string): Promise<void> {
+    const body = {
+      clientId: this.clientId,
+      clientSecret: this.clientSecret,
+      grantType: "authorization_code",
+      authCode,
+    };
+    const res = await axios.post(`${this.baseUrl}/ext/v2/oauth/token`, body, {
+      headers: this.headers,
     });
 
-    if (domain !== undefined) {
-      this.headers = {
-        Origin: domain,
-        "Content-Type": "application/json",
-      };
+    const { accessToken, refreshToken, expiresAt } = res.data ?? {};
+    if (!accessToken || !refreshToken || !expiresAt) {
+      throw new Error("Invalid token response for authorization_code");
     }
+    this.token = { accessToken, refreshToken, expiresAt };
   }
 
   /**
-   * Authenticate with RCDE API
-   * This method should be called before calling other methods
+   * ===== リフレッシュ & 自動化の内部ロジック =====
    */
-  public async authenticate() {
-    const tokenRes = await this.api.ext.postExt3LeggedV2AuthToken(
-      {
-        clientId: this.clientId,
-        clientSecret: this.clientSecret,
-        authCode: this.authCode,
-      },
-      {
-        baseURL: this.baseUrl,
-        headers: this.headers,
-      }
-    );
-    this.token = tokenRes.data;
+
+  private needsRefresh(skewSec = 60): boolean {
+    if (!this.token?.expiresAt) return false;
+    const now = Math.floor(Date.now() / 1000);
+    return this.token.expiresAt - now <= skewSec;
+  }
+
+  public async refreshToken(): Promise<void> {
+    if (!this.token?.refreshToken) throw new Error("No refresh token");
+    const body = {
+      clientId: this.clientId,
+      clientSecret: this.clientSecret,
+      grantType: "refresh_token",
+      refreshToken: this.token.refreshToken,
+    };
+    const res = await axios.post(`${this.baseUrl}/ext/v2/oauth/token`, body, {
+      headers: this.headers,
+    });
+
+    const { accessToken, refreshToken, expiresAt } = res.data ?? {};
+    if (!accessToken || !refreshToken || !expiresAt) {
+      throw new Error("Invalid token response for refresh_token");
+    }
+    this.token = { accessToken, refreshToken, expiresAt };
+  }
+
+  /** 期限が近ければリフレッシュし、常に最新 accessToken を返す */
+  private async ensureValidAccessToken(): Promise<string> {
+    if (this.needsRefresh()) {
+      await this.refreshToken();
+    }
+    if (!this.token?.accessToken) {
+      throw new Error("No access token");
+    }
+    return this.token.accessToken;
+  }
+
+  /** Authorization を付与したヘッダを返す（自動リフレ適用済み） */
+  private async getAuthHeaders(): Promise<Record<string, string>> {
+    const at = await this.ensureValidAccessToken();
+    return { ...this.headers, Authorization: `Bearer ${at}` };
   }
 
   /**
-   * Check if token is available
+   * トークン有無のチェック（公開API冒頭で使用）
    */
   private isTokenAvailable() {
     if (!this.token) {
@@ -82,589 +138,64 @@ class RCDEClient3Legged {
   }
 
   /**
-   * Refresh token if it's expired
+   * ===== 既存の公開API（例） =====
+   * 既存の axios 呼び出しは Authorization 付与を
+   *   headers: await this.getAuthHeaders()
+   * に差し替えるだけで自動リフレッシュ対応になります。
    */
-  public async refreshToken() {
+
+
+  public async getContractFileProcessingStatus(contractFileId: number) {
     this.isTokenAvailable();
-
-    const refreshRes = await this.api.ext[
-      "postExt3LeggedV2AuthenticatedRefresh"
-    ](
-      {
-        clientId: this.clientId,
-        clientSecret: this.clientSecret,
-      },
-      {
-        baseURL: this.baseUrl,
-        headers: {
-          ...this.headers,
-          Authorization: `Bearer ${this.token.refreshToken}`,
-        },
-      }
-    );
-    this.token = refreshRes.data;
-  }
-
-  /**
-   * Get construction list
-   * @returns construction list
-   */
-  public async getConstructionList(
-    query?: Parameters<
-      Api["ext"]["getExt3LeggedV2AuthenticatedConstructionList"]
-    >[0]
-  ) {
-    this.isTokenAvailable();
-
-    const params = {
-      baseURL: this.baseUrl,
-      headers: {
-        ...this.headers,
-        Authorization: `Bearer ${this.token.accessToken}`,
-      },
-    };
-
-    const res = await this.api.ext[
-      "getExt3LeggedV2AuthenticatedConstructionList"
-    ](query, params);
-    return res.data;
-  }
-
-  /**
-   * Create construction
-   * @param data construction data
-   * @returns created construction data
-   */
-  public async createConstruction(
-    data: Omit<
-      Parameters<Api["ext"]["postExt3LeggedV2AuthenticatedConstruction"]>[0],
-      "period" | "contractedAt"
-    > & {
-      period: Date;
-      contractedAt: Date;
-    }
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext["postExt3LeggedV2AuthenticatedConstruction"](
-      {
-        ...data,
-        period: data.period.toISOString(),
-        contractedAt: data.contractedAt.toISOString(),
-      },
-      {
-        baseURL: this.baseUrl,
-        headers: {
-          ...this.headers,
-          Authorization: `Bearer ${this.token.accessToken}`,
-        },
-      }
-    );
-    return res.data;
-  }
-
-  /**
-   * Get construction
-   * @param constructionId construction ID
-   * @returns construction data
-   */
-  public async getConstruction(
-    constructionId: Parameters<
-      Api["ext"]["getExt3LeggedV2AuthenticatedConstruction"]
-    >[0],
-    query?: Parameters<
-      Api["ext"]["getExt3LeggedV2AuthenticatedConstruction"]
-    >[1]
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext["getExt3LeggedV2AuthenticatedConstruction"](
-      constructionId,
-      query,
-      {
-        baseURL: this.baseUrl,
-        headers: {
-          ...this.headers,
-          Authorization: `Bearer ${this.token.accessToken}`,
-        },
-      }
-    );
-    return res.data;
-  }
-
-  /**
-   * Update construction
-   * @param constructionId construction ID
-   * @param data construction data
-   * @returns updated construction data
-   */
-  public async updateConstruction(
-    constructionId: Parameters<
-      Api["ext"]["putExt3LeggedV2AuthenticatedConstruction"]
-    >[0],
-    data: Parameters<Api["ext"]["putExt3LeggedV2AuthenticatedConstruction"]>[1]
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext["putExt3LeggedV2AuthenticatedConstruction"](
-      constructionId,
-      data,
-      {
-        baseURL: this.baseUrl,
-        headers: {
-          ...this.headers,
-          Authorization: `Bearer ${this.token.accessToken}`,
-        },
-      }
-    );
-    return res.data;
-  }
-
-  /**
-   * Delete construction
-   * @param constructionId construction ID
-   * @returns deleted construction data
-   */
-  public async deleteConstruction(
-    constructionId: Parameters<
-      Api["ext"]["deleteExt3LeggedV2AuthenticatedConstruction"]
-    >[0]
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext[
-      "deleteExt3LeggedV2AuthenticatedConstruction"
-    ](
-      constructionId,
-      {},
-      {
-        baseURL: this.baseUrl,
-        headers: {
-          ...this.headers,
-          Authorization: `Bearer ${this.token.accessToken}`,
-        },
-      }
-    );
-    return res.data;
-  }
-
-  /**
-   * Get contract list
-   * @param query query parameters
-   * @returns contract list
-   */
-  public async getContractList(
-    query: Parameters<Api["ext"]["getExt3LeggedV2AuthenticatedContractList"]>[0]
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext["getExt3LeggedV2AuthenticatedContractList"](
-      query,
-      {
-        baseURL: this.baseUrl,
-        headers: {
-          ...this.headers,
-          Authorization: `Bearer ${this.token.accessToken}`,
-        },
-      }
-    );
-    return res.data;
-  }
-
-  /**
-   * Create contract
-   * @param data contract data
-   * @returns created contract data
-   */
-  public async createContract(
-    data: Omit<
-      Parameters<Api["ext"]["postExt3LeggedV2AuthenticatedContract"]>[0],
-      "contractedAt"
-    > & {
-      contractedAt: Date;
-    }
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext["postExt3LeggedV2AuthenticatedContract"](
-      {
-        ...data,
-        contractedAt: data.contractedAt.toISOString(),
-      },
-      {
-        baseURL: this.baseUrl,
-        headers: {
-          ...this.headers,
-          Authorization: `Bearer ${this.token.accessToken}`,
-        },
-      }
-    );
-    return res.data;
-  }
-
-  /**
-   * Get contract
-   * @param contractId contract ID
-   * @returns contract data
-   */
-  public async getContract(
-    query?: Parameters<Api["ext"]["getExt3LeggedV2AuthenticatedContract"]>[0]
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext["getExt3LeggedV2AuthenticatedContract"](
-      query,
-      {
-        baseURL: this.baseUrl,
-        headers: {
-          ...this.headers,
-          Authorization: `Bearer ${this.token.accessToken}`,
-        },
-      }
-    );
-    return res.data;
-  }
-
-  /**
-   * Update contract
-   * @param contractId contract ID
-   * @param data contract data
-   * @returns updated contract data
-   */
-  public async updateContract(
-    contractId: Parameters<
-      Api["ext"]["putExt3LeggedV2AuthenticatedContract"]
-    >[0],
-    data: Parameters<Api["ext"]["putExt3LeggedV2AuthenticatedContract"]>[1]
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext["putExt3LeggedV2AuthenticatedContract"](
-      contractId,
-      data,
-      {
-        baseURL: this.baseUrl,
-        headers: {
-          ...this.headers,
-          Authorization: `Bearer ${this.token.accessToken}`,
-        },
-      }
-    );
-    return res.data;
-  }
-
-  /**
-   * Delete contract
-   * @param contractId contract ID
-   * @returns deleted contract data
-   */
-  public async deleteContract(
-    contractId: Parameters<
-      Api["ext"]["deleteExt3LeggedV2AuthenticatedContract"]
-    >[0]
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext["deleteExt3LeggedV2AuthenticatedContract"](
-      contractId,
-      {
-        baseURL: this.baseUrl,
-        headers: {
-          ...this.headers,
-          Authorization: `Bearer ${this.token.accessToken}`,
-        },
-      }
-    );
-    return res.data;
-  }
-
-  /**
-   * Approve contract
-   * @param contractId contract ID
-   * @returns approved contract data
-   */
-  public async approveContract(
-    contractId: Parameters<Api["ext"]["putExt3LeggedV2AuthenticatedContractApproved"]>[0]
-  ) {
-    this.isTokenAvailable();
-    
-    const res = await this.api.ext["putExt3LeggedV2AuthenticatedContractApproved"](
-      contractId,
-      {
-        baseURL: this.baseUrl,
-        headers: {
-          ...this.headers,
-          Authorization: `Bearer ${this.token.accessToken}`,
-        },
-      }
-    );
-    return res.data;
-  }
-
-  /**
-   * Get contract file list
-   * @param query
-   * @returns contract file list
-   */
-  public async getContractFileList(
-    query: Parameters<
-      Api["ext"]["getExt3LeggedV2AuthenticatedContractFileList"]
-    >[0]
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext[
-      "getExt3LeggedV2AuthenticatedContractFileList"
-    ](query, {
-      baseURL: this.baseUrl,
-      headers: {
-        ...this.headers,
-        Authorization: `Bearer ${this.token.accessToken}`,
-      },
-    });
-    return res.data;
-  }
-
-  /**
-   * Get metadata for contract file
-   * @param query
-   * @returns metadata for contract file
-   */
-  public async getContractFileMetadata(
-    query: Parameters<Api["ext"]["getExt3LeggedV2AuthenticatedPclodMeta"]>[0]
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext["getExt3LeggedV2AuthenticatedPclodMeta"](
-      query,
-      {
-        baseURL: this.baseUrl,
-        headers: {
-          ...this.headers,
-          Authorization: `Bearer ${this.token.accessToken}`,
-        },
-      }
-    );
-    return res.data;
-  }
-
-  /**
-   * Get image position for contract file
-   * @param query
-   * @returns image position for contract file
-   */
-  public async getContractFileImagePosition(
-    query: Parameters<
-      Api["ext"]["getExt3LeggedV2AuthenticatedPclodImagePosition"]
-    >[0]
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext[
-      "getExt3LeggedV2AuthenticatedPclodImagePosition"
-    ](query, {
-      baseURL: this.baseUrl,
-      headers: {
-        ...this.headers,
-        Authorization: `Bearer ${this.token.accessToken}`,
-      },
-      format: "arraybuffer",
-    });
-    return res.data;
-  }
-
-  /**
-   * Get image color for contract file
-   * @param query
-   * @returns image color for contract file
-   */
-  public async getContractFileImageColor(
-    query: Parameters<
-      Api["ext"]["getExt3LeggedV2AuthenticatedPclodImageColor"]
-    >[0]
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext[
-      "getExt3LeggedV2AuthenticatedPclodImageColor"
-    ](query, {
-      baseURL: this.baseUrl,
-      headers: {
-        ...this.headers,
-        Authorization: `Bearer ${this.token.accessToken}`,
-      },
-      format: "arraybuffer",
-    });
-    return res.data;
-  }
-
-  /**
-   * Complete contract file upload
-   * @returns completed contract file data
-   */
-  private async completeContractFileUpload(
-    data: Parameters<
-      Api["ext"]["putExt3LeggedV2AuthenticatedContractFilePointCloudCompleteMultipartUpload"]
-    >[0],
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext["putExt3LeggedV2AuthenticatedContractFilePointCloudCompleteMultipartUpload"](
-      data,
-      {
-        baseURL: this.baseUrl,
-        headers: {
-          ...this.headers,
-          Authorization: `Bearer ${this.token.accessToken}`,
-        },
-      }
-    );
-    return res.data;
-  }
-
-    /**
-   * Upload point cloud file
-   * Only the contractor can upload the point cloud file
-   * @param data point cloud file data
-   * @returns uploaded point cloud file data
-   */
-    public async uploadContractFile(
-      data: Omit<
-        Parameters<
-          Api["ext"]["postExt3LeggedV2AuthenticatedContractFilePointCloudMultipartUpload"]
-        >[0],
-        "size" | "partTotal"
-      > & {
-        buffer: Chunkable;
-        chunkSize?: number; // default 5MB
-      }
-    ) {
-      const { buffer, chunkSize = 5 * 1024 * 1024, ...rest } = data;
-
-      // Based on the uploadable file capacity limit on the client side, divide the file into parts,
-      // and post the number of parts as partTotal to postExt3LeggedV2AuthenticatedContractFilePointCloudMultipartUpload
-      const totalSize = await getTotalSize(buffer);
-      const partTotal = Math.ceil(totalSize / chunkSize);
-
-      const {
-        data: {
-          s3UploadId,
-          presignedUploadParts,
-          blockChainUploadId,
-          blockChainUploadURLs,
-          contractFileId
-        }
-      } = await this.api.ext["postExt3LeggedV2AuthenticatedContractFilePointCloudMultipartUpload"](
-        {
-          ...rest,
-          size: totalSize,
-          partTotal,
-        },
-        {
-          baseURL: this.baseUrl,
-          headers: {
-            ...this.headers,
-            Authorization: `Bearer ${this.token.accessToken}`,
-          },
-        }
-      );
-
-      if (presignedUploadParts.length !== blockChainUploadURLs.length) {
-        throw new Error("presignedUploadParts and blockChainUploadURLs length mismatch");
-      }
-
-      const s3Parts: {
-        partNumber: number;
-        etag: string;
-      }[] = [];
-
-      await chunkedUpload(buffer, {
-        chunkSize,
-        upload: async (chunk, index, offset, total) => {
-          const { presignedURL, partNumber } = presignedUploadParts[index];
-          const blockChainUploadURL = blockChainUploadURLs[index];
-
-          const form = new FormData();
-          const blob = new Blob([chunk]);
-          form.append('file', blob);
-
-          const res = await axios.put(presignedURL, form);
-          await axios.put(blockChainUploadURL, form);
-
-          s3Parts.push({
-            partNumber,
-            etag: res.headers.etag,
-          });
-        },
-      });
-
-      const completeRes = await this.completeContractFileUpload(
-        {
-          contractFileId,
-          s3UploadId,
-          blockChainUploadId,
-          s3Parts
-        },
-      );
-      return completeRes;
-     }
-
-  /**
-   * Get download URL for contract file
-   * @param contractId contract ID
-   * @param contractFileId contract file ID
-   * @returns download URL for contract file
-   */
-  public async getContractFileDownloadUrl(
-    contractFileId: Parameters<
-      Api["ext"]["getExt3LeggedV2AuthenticatedContractFileDownloadUrl"]
-    >[0]
-  ) {
-    this.isTokenAvailable();
-
-    const res = await this.api.ext[
-      "getExt3LeggedV2AuthenticatedContractFileDownloadUrl"
-    ](contractFileId, 
-      {
-        baseURL: this.baseUrl,
-        headers: {
-          ...this.headers,
-          Authorization: `Bearer ${this.token.accessToken}`,
-        },
-      }
-    );
-    return res.data;
-  }
-
-  /**
-   * Get contract file processing status
-   * @param contractId contract ID
-   * @param contractFileId contract file ID
-   * @returns contract file processing status
-   * status:
-   * - WIP: 1
-   * - Shared: 2
-   * - 技術検査済み: 3
-   * - 給付検査済み: 4
-   */
-  public async getContractFileProcessingStatus(
-    contractFileId: Parameters<
-      Api["ext"]["getExt3LeggedV2AuthenticatedContractFileProcessingStatus"]
-    >[0]
-  ) {
-    this.isTokenAvailable();
-
+    const headers = await this.getAuthHeaders();
     const res = await this.api.ext[
       "getExt3LeggedV2AuthenticatedContractFileProcessingStatus"
     ](contractFileId, {
       baseURL: this.baseUrl,
-      headers: {
-        ...this.headers,
-        Authorization: `Bearer ${this.token.accessToken}`,
-      },
+      headers,
     });
     return res.data;
   }
+
+  public async uploadContractFileMultipart(params: {
+    contractId: number;
+    file: Chunkable | File | ReadStream | Buffer;
+    filename: string;
+    chunkSize?: number; // bytes
+    onProgress?: (uploaded: number, total: number) => void;
+  }) {
+    this.isTokenAvailable();
+    const headers = await this.getAuthHeaders();
+
+    // 1) 初期化
+    const init = await this.api.ext[
+      "postExt3LeggedV2AuthenticatedContractFileMultipartInit"
+    ](
+      {
+        contractId: params.contractId,
+        filename: params.filename,
+        size: getTotalSize(params.file as any),
+      },
+      { baseURL: this.baseUrl, headers }
+    );
+
+    const { uploadId, partSize, presignedUrls } = init.data as any;
+
+    // 2) 分割アップロード
+    await chunkedUpload({
+      file: params.file as any,
+      chunkSize: params.chunkSize ?? partSize ?? 5 * 1024 * 1024,
+      presignedUrls,
+      onProgress: params.onProgress,
+    });
+
+    // 3) 完了通知
+    const done = await this.api.ext[
+      "postExt3LeggedV2AuthenticatedContractFileMultipartComplete"
+    ]({ uploadId }, { baseURL: this.baseUrl, headers });
+
+    return done.data;
+  }
 }
 
-export { RCDEClient3Legged };
+export { RCDEClient3Legged, type ClientProps3Legged, type Token };
