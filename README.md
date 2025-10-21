@@ -33,8 +33,8 @@ import { RCDEClient2Legged } from "@i-con/api-sdk";
 const client = new RCDEClient2Legged({
   // RCDEのアプリ設定画面で登録したドメイン (許可オリジン)
   domain: "https://yourapp.example.com",
-  // RCDEのWebサイトのAPIエンドポイント e.g. https://api.rcde-dev.jp
-  baseUrl: "https://api.rcde-dev.jp",
+  // RCDEのWebサイトのAPIエンドポイント e.g. https://api.rcde.jp
+  baseUrl: "https://api.rcde.jp",
   // RCDEのアプリ設定画面で取得したクライアントIDとクライアントシークレット
   clientId: process.env.RCDE_CLIENT_ID!,
   clientSecret: process.env.RCDE_CLIENT_SECRET!,
@@ -101,8 +101,8 @@ import { RCDEClient3Legged } from "@i-con/api-sdk";
 const client = new RCDEClient3Legged({
   // RCDEのアプリ設定画面で登録したドメイン (許可オリジン)
   domain: "https://yourapp.example.com",
-  // RCDEのWebサイトのAPIエンドポイント e.g. https://api.rcde-dev.jp
-  baseUrl: "https://api.rcde-dev.jp",
+  // RCDEのWebサイトのAPIエンドポイント e.g. https://api.rcde.jp
+  baseUrl: "https://api.rcde.jp",
   // RCDEのアプリ設定画面で取得したクライアントIDとクライアントシークレット
   clientId: process.env.RCDE_CLIENT_ID!,
   clientSecret: process.env.RCDE_CLIENT_SECRET!,

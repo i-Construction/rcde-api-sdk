@@ -72,20 +72,19 @@ class RCDEClient2Legged {
    * Refresh token if it's expired
    */
   public async refreshToken(): Promise<void> {
+    this.isTokenAvailable();
     if (!this.token?.refreshToken) throw new Error("No refresh token");
-    const body = {
-      clientId: this.clientId,
-      clientSecret: this.clientSecret,
-    };
   
-    const refreshRes = await axios.post(
-      `${this.baseUrl}/ext/v2/authenticated/refresh`,
-      body,
+    const refreshRes = await this.api.ext["postExtV2AuthenticatedRefresh"](
       {
+        clientId: this.clientId,
+        clientSecret: this.clientSecret,
+      },
+      {
+        baseURL: this.baseUrl,
         headers: {
-          Origin: this.headers.Origin,
+          ...this.headers,
           Authorization: `Bearer ${this.token.refreshToken}`,
-          "Content-Type": "application/json",
         },
       }
     );

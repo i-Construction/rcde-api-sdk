@@ -85,7 +85,6 @@ class RCDEClient3Legged {
   /**
    * ===== リフレッシュ & 自動化の内部ロジック =====
    */
-
   private needsRefresh(skewSec = 60): boolean {
     if (!this.token?.expiresAt) return false;
     const now = Math.floor(Date.now() / 1000);
@@ -93,25 +92,33 @@ class RCDEClient3Legged {
   }
 
   public async refreshToken(): Promise<void> {
+    this.isTokenAvailable();
     if (!this.token?.refreshToken) throw new Error("No refresh token");
-    const body = {
-      clientId: this.clientId,
-      clientSecret: this.clientSecret,
-      grantType: "refresh_token",
-      refreshToken: this.token.refreshToken,
-    };
-    const res = await axios.post(`${this.baseUrl}/ext/v2/oauth/token`, body, {
-      headers: this.headers,
-    });
-
-    const { accessToken, refreshToken, expiresAt } = res.data ?? {};
+  
+    const refreshRes = await this.api.ext["postExt3LeggedV2OauthToken"](
+      {
+        clientId: this.clientId,
+        clientSecret: this.clientSecret,
+        grantType: "refresh_token",
+        refreshToken: this.token.refreshToken,
+      },
+      {
+        baseURL: this.baseUrl,
+        headers: {
+          ...this.headers,
+          Origin: this.headers.Origin,
+        },
+      }
+    );
+  
+    const { accessToken, refreshToken, expiresAt } = refreshRes.data ?? {};
     if (!accessToken || !refreshToken || !expiresAt) {
       throw new Error("Invalid token response for refresh_token");
     }
+  
     this.token = { accessToken, refreshToken, expiresAt };
   }
 
-  /** 期限が近ければリフレッシュし、常に最新 accessToken を返す */
   private async ensureValidAccessToken(): Promise<string> {
     if (this.needsRefresh()) {
       await this.refreshToken();
