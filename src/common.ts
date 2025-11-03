@@ -1,4 +1,3 @@
-
 export type ClientProps = {
   domain?: string;
   baseUrl: string;

@@ -71,10 +71,11 @@ class RCDEClient2Legged {
   /**
    * Refresh token if it's expired
    */
-  public async refreshToken() {
+  public async refreshToken(): Promise<void> {
     this.isTokenAvailable();
-
-    const refreshRes = await this.api.ext.postExtV2AuthenticatedRefresh(
+    if (!this.token?.refreshToken) throw new Error("No refresh token");
+  
+    const refreshRes = await this.api.ext["postExtV2AuthenticatedRefresh"](
       {
         clientId: this.clientId,
         clientSecret: this.clientSecret,
@@ -87,8 +88,15 @@ class RCDEClient2Legged {
         },
       }
     );
-    this.token = refreshRes.data;
+  
+    const { accessToken, refreshToken, expiresAt } = refreshRes.data ?? {};
+    if (!accessToken || !refreshToken || !expiresAt) {
+      throw new Error("Invalid token response for 2-legged refresh");
+    }
+  
+    this.token = { accessToken, refreshToken, expiresAt };
   }
+  
 
   /**
    * Create Equipment Token
